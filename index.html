@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>স্মার্ট ক্যালকুলেটর</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); /* সুন্দর ডার্ক গ্রেডিয়েন্ট ব্যাকগ্রাউন্ড */
+        }
+        .calculator {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px); /* গ্লাস ইফেক্ট */
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .display {
+            width: 100%;
+            height: 80px;
+            border: none;
+            background: rgba(0, 0, 0, 0.2);
+            color: #fff;
+            font-size: 2.5rem;
+            text-align: right;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);
+            letter-spacing: 2px;
+        }
+        .display::placeholder {
+            color: #b3b3b3;
+        }
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+        button {
+            width: 65px;
+            height: 65px;
+            border: none;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        button:active {
+            transform: scale(0.92);
+        }
+        button:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+        .operator {
+            color: #00e5ff; /* অপরেটরগুলোর জন্য সায়ান কালার */
+            background: rgba(255, 255, 255, 0.08);
+        }
+        .equal {
+            background: #00e5ff;
+            color: #000;
+        }
+        .equal:hover {
+            background: #00c4cc;
+        }
+        .clear {
+            color: #ff4757; /* ক্লিয়ার বাটনের জন্য লাল কালার */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="calculator">
+        <input type="text" class="display" id="display" disabled placeholder="0">
+        <div class="buttons">
+            <button class="clear" onclick="clearDisplay()">C</button>
+            <button class="operator" onclick="appendCharacter('/')">÷</button>
+            <button class="operator" onclick="appendCharacter('*')">×</button>
+            <button class="operator" onclick="deleteLast()">DEL</button>
+            
+            <button onclick="appendCharacter('7')">7</button>
+            <button onclick="appendCharacter('8')">8</button>
+            <button onclick="appendCharacter('9')">9</button>
+            <button class="operator" onclick="appendCharacter('-')">-</button>
+            
+            <button onclick="appendCharacter('4')">4</button>
+            <button onclick="appendCharacter('5')">5</button>
+            <button onclick="appendCharacter('6')">6</button>
+            <button class="operator" onclick="appendCharacter('+')">+</button>
+            
+            <button onclick="appendCharacter('1')">1</button>
+            <button onclick="appendCharacter('2')">2</button>
+            <button onclick="appendCharacter('3')">3</button>
+            <button class="equal" style="grid-row: span 2; height: 145px; border-radius: 35px;" onclick="calculateResult()">=</button>
+            
+            <button onclick="appendCharacter('0')" style="grid-column: span 2; width: 145px; border-radius: 35px;">0</button>
+            <button onclick="appendCharacter('.')">.</button>
+        </div>
+    </div>
+
+    <script>
+        const display = document.getElementById('display');
+
+        function appendCharacter(char) {
+            if(display.value === 'Error') {
+                display.value = '';
+            }
+            display.value += char;
+        }
+
+        function clearDisplay() {
+            display.value = '';
+        }
+
+        function deleteLast() {
+            if(display.value !== 'Error') {
+                display.value = display.value.slice(0, -1);
+            }
+        }
+
+        function calculateResult() {
+            try {
+                // ইনপুট খালি থাকলে কিছু করবে না
+                if(display.value === '') return; 
+                // হিসাব করা
+                let result = eval(display.value);
+                display.value = result;
+            } catch (error) {
+                // ভুল ইনপুট দিলে Error দেখাবে
+                display.value = 'Error';
+            }
+        }
+    </script>
+</body>
+</html>
