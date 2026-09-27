@@ -1,150 +1,1488 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>স্মার্ট ক্যালকুলেটর</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); /* সুন্দর ডার্ক গ্রেডিয়েন্ট ব্যাকগ্রাউন্ড */
-        }
-        .calculator {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(15px); /* গ্লাস ইফেক্ট */
-            padding: 25px;
-            border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .display {
-            width: 100%;
-            height: 80px;
-            border: none;
-            background: rgba(0, 0, 0, 0.2);
-            color: #fff;
-            font-size: 2.5rem;
-            text-align: right;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);
-            letter-spacing: 2px;
-        }
-        .display::placeholder {
-            color: #b3b3b3;
-        }
-        .buttons {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
-        }
-        button {
-            width: 65px;
-            height: 65px;
-            border: none;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.1);
-            color: #fff;
-            font-size: 1.5rem;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            transition: all 0.3s ease;
-        }
-        button:active {
-            transform: scale(0.92);
-        }
-        button:hover {
-            background: rgba(255, 255, 255, 0.25);
-        }
-        .operator {
-            color: #00e5ff; /* অপরেটরগুলোর জন্য সায়ান কালার */
-            background: rgba(255, 255, 255, 0.08);
-        }
-        .equal {
-            background: #00e5ff;
-            color: #000;
-        }
-        .equal:hover {
-            background: #00c4cc;
-        }
-        .clear {
-            color: #ff4757; /* ক্লিয়ার বাটনের জন্য লাল কালার */
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<title>Deen Routine - Private Timer</title>
+
+<!-- Google Identity Services -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+
+<style>
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+:root{
+    --bg:#f4f7f5;
+    --card:#ffffff;
+    --text:#17231c;
+    --muted:#718078;
+    --primary:#16834a;
+    --primary2:#0c6738;
+    --border:#e2ebe5;
+    --danger:#dc3545;
+    --warning:#f39c12;
+    --shadow:0 12px 35px rgba(18,55,35,.09);
+}
+
+body.dark{
+    --bg:#0d1511;
+    --card:#17221c;
+    --text:#edf7f0;
+    --muted:#9aaa9f;
+    --border:#29372f;
+    --shadow:0 12px 35px rgba(0,0,0,.30);
+}
+
+body{
+    min-height:100vh;
+    font-family:
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+    background:
+        radial-gradient(circle at top left,rgba(22,131,74,.12),transparent 30%),
+        var(--bg);
+    color:var(--text);
+    transition:.3s;
+}
+
+.container{
+    width:min(620px,100%);
+    margin:auto;
+    padding:18px;
+}
+
+/* HEADER */
+
+.header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+}
+
+.brand{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.logo{
+    width:48px;
+    height:48px;
+    border-radius:15px;
+    background:linear-gradient(135deg,var(--primary),#38b873);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:white;
+    font-size:23px;
+    box-shadow:0 8px 20px rgba(22,131,74,.25);
+}
+
+.brand h1{
+    font-size:21px;
+}
+
+.brand p{
+    color:var(--muted);
+    font-size:12px;
+    margin-top:2px;
+}
+
+.icon-btn{
+    border:1px solid var(--border);
+    background:var(--card);
+    color:var(--text);
+    width:44px;
+    height:44px;
+    border-radius:13px;
+    cursor:pointer;
+    font-size:19px;
+}
+
+/* LOGIN */
+
+.login-card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:24px;
+    padding:25px;
+    box-shadow:var(--shadow);
+    text-align:center;
+    margin-bottom:18px;
+}
+
+.login-icon{
+    width:70px;
+    height:70px;
+    margin:auto;
+    border-radius:22px;
+    background:#eef8f2;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:31px;
+}
+
+body.dark .login-icon{
+    background:#203328;
+}
+
+.login-card h2{
+    margin-top:15px;
+    font-size:20px;
+}
+
+.login-card p{
+    color:var(--muted);
+    line-height:1.6;
+    font-size:14px;
+    margin:8px 0 18px;
+}
+
+.google-wrap{
+    display:flex;
+    justify-content:center;
+}
+
+/* CHECKING */
+
+.checking{
+    display:none;
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:24px;
+    padding:35px 20px;
+    text-align:center;
+    box-shadow:var(--shadow);
+}
+
+.spinner{
+    width:54px;
+    height:54px;
+    margin:0 auto 17px;
+    border:5px solid #dcebe2;
+    border-top-color:var(--primary);
+    border-radius:50%;
+    animation:spin 1s linear infinite;
+}
+
+@keyframes spin{
+    to{transform:rotate(360deg)}
+}
+
+/* APP */
+
+#app{
+    display:none;
+}
+
+/* ACCOUNT */
+
+.account{
+    background:linear-gradient(135deg,#126b3d,#1d9657);
+    color:white;
+    border-radius:24px;
+    padding:18px;
+    display:flex;
+    align-items:center;
+    gap:13px;
+    box-shadow:0 12px 30px rgba(18,107,61,.22);
+    margin-bottom:17px;
+}
+
+.avatar{
+    width:51px;
+    height:51px;
+    border-radius:50%;
+    background:rgba(255,255,255,.18);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:22px;
+    font-weight:700;
+}
+
+.account-info{
+    min-width:0;
+    flex:1;
+}
+
+.account-info strong{
+    display:block;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+
+.account-info span{
+    display:block;
+    opacity:.8;
+    font-size:12px;
+    margin-top:3px;
+}
+
+.logout{
+    border:1px solid rgba(255,255,255,.25);
+    color:white;
+    background:rgba(255,255,255,.12);
+    border-radius:10px;
+    padding:9px 11px;
+    cursor:pointer;
+}
+
+/* MAIN TIMER */
+
+.timer-card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:27px;
+    padding:25px 20px;
+    box-shadow:var(--shadow);
+    text-align:center;
+    margin-bottom:17px;
+}
+
+.badge{
+    display:inline-flex;
+    padding:6px 12px;
+    border-radius:30px;
+    background:#e9f7ef;
+    color:var(--primary);
+    font-size:12px;
+    font-weight:700;
+}
+
+body.dark .badge{
+    background:#203c2c;
+}
+
+.timer-title{
+    font-size:22px;
+    margin:13px 0 5px;
+}
+
+.subtitle{
+    color:var(--muted);
+    font-size:13px;
+}
+
+.countdown{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:8px;
+    margin:22px 0;
+}
+
+.time-box{
+    background:var(--bg);
+    border-radius:16px;
+    padding:15px 5px;
+    border:1px solid var(--border);
+}
+
+.time-box strong{
+    display:block;
+    font-size:26px;
+    line-height:1;
+}
+
+.time-box span{
+    display:block;
+    color:var(--muted);
+    font-size:11px;
+    margin-top:6px;
+}
+
+.progress{
+    height:10px;
+    background:var(--border);
+    border-radius:20px;
+    overflow:hidden;
+    margin-top:17px;
+}
+
+.progress-bar{
+    width:0%;
+    height:100%;
+    background:linear-gradient(90deg,var(--primary),#55c889);
+    border-radius:20px;
+    transition:.5s;
+}
+
+.progress-text{
+    display:flex;
+    justify-content:space-between;
+    color:var(--muted);
+    font-size:12px;
+    margin-top:8px;
+}
+
+/* BUTTONS */
+
+.buttons{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    margin-top:20px;
+}
+
+button{
+    font-family:inherit;
+}
+
+.primary{
+    border:0;
+    background:var(--primary);
+    color:white;
+    border-radius:13px;
+    padding:13px;
+    font-weight:700;
+    cursor:pointer;
+}
+
+.primary:hover{
+    background:var(--primary2);
+}
+
+.secondary{
+    border:1px solid var(--border);
+    background:var(--bg);
+    color:var(--text);
+    border-radius:13px;
+    padding:13px;
+    font-weight:700;
+    cursor:pointer;
+}
+
+/* INFO */
+
+.info-card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:22px;
+    padding:18px;
+    box-shadow:var(--shadow);
+    margin-bottom:17px;
+}
+
+.info-title{
+    font-size:16px;
+    font-weight:700;
+    margin-bottom:14px;
+}
+
+.info-row{
+    display:flex;
+    justify-content:space-between;
+    gap:15px;
+    padding:11px 0;
+    border-bottom:1px solid var(--border);
+    font-size:13px;
+}
+
+.info-row:last-child{
+    border-bottom:0;
+}
+
+.info-row span:first-child{
+    color:var(--muted);
+}
+
+/* REDUCTION */
+
+.reduce-card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:22px;
+    padding:18px;
+    box-shadow:var(--shadow);
+    margin-bottom:17px;
+}
+
+.reduce-card h3{
+    font-size:16px;
+}
+
+.reduce-card p{
+    color:var(--muted);
+    font-size:12px;
+    line-height:1.6;
+    margin:7px 0 13px;
+}
+
+.reduce-control{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+}
+
+.reduce-btn{
+    border:0;
+    background:#f1a126;
+    color:white;
+    border-radius:13px;
+    padding:13px;
+    font-weight:700;
+    cursor:pointer;
+}
+
+.reduce-count{
+    background:var(--bg);
+    border:1px solid var(--border);
+    border-radius:13px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:700;
+}
+
+/* MODAL */
+
+.modal{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.55);
+    z-index:100;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+}
+
+.modal-box{
+    width:min(430px,100%);
+    background:var(--card);
+    color:var(--text);
+    border-radius:24px;
+    padding:23px;
+    box-shadow:0 20px 60px rgba(0,0,0,.25);
+}
+
+.modal-box h3{
+    margin-bottom:8px;
+}
+
+.modal-box p{
+    color:var(--muted);
+    font-size:13px;
+    line-height:1.6;
+    margin-bottom:18px;
+}
+
+.modal-actions{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+}
+
+.hidden{
+    display:none!important;
+}
+
+.footer{
+    text-align:center;
+    color:var(--muted);
+    font-size:11px;
+    padding:10px 0 25px;
+}
+
+@media(max-width:400px){
+    .countdown{
+        gap:5px;
+    }
+
+    .time-box strong{
+        font-size:22px;
+    }
+}
+</style>
 </head>
+
 <body>
 
-    <div class="calculator">
-        <input type="text" class="display" id="display" disabled placeholder="0">
-        <div class="buttons">
-            <button class="clear" onclick="clearDisplay()">C</button>
-            <button class="operator" onclick="appendCharacter('/')">÷</button>
-            <button class="operator" onclick="appendCharacter('*')">×</button>
-            <button class="operator" onclick="deleteLast()">DEL</button>
-            
-            <button onclick="appendCharacter('7')">7</button>
-            <button onclick="appendCharacter('8')">8</button>
-            <button onclick="appendCharacter('9')">9</button>
-            <button class="operator" onclick="appendCharacter('-')">-</button>
-            
-            <button onclick="appendCharacter('4')">4</button>
-            <button onclick="appendCharacter('5')">5</button>
-            <button onclick="appendCharacter('6')">6</button>
-            <button class="operator" onclick="appendCharacter('+')">+</button>
-            
-            <button onclick="appendCharacter('1')">1</button>
-            <button onclick="appendCharacter('2')">2</button>
-            <button onclick="appendCharacter('3')">3</button>
-            <button class="equal" style="grid-row: span 2; height: 145px; border-radius: 35px;" onclick="calculateResult()">=</button>
-            
-            <button onclick="appendCharacter('0')" style="grid-column: span 2; width: 145px; border-radius: 35px;">0</button>
-            <button onclick="appendCharacter('.')">.</button>
+<div class="container">
+
+    <!-- HEADER -->
+    <div class="header">
+
+        <div class="brand">
+
+            <div class="logo">☪</div>
+
+            <div>
+                <h1>Deen Routine</h1>
+                <p>Private Routine Tracker</p>
+            </div>
+
         </div>
+
+        <button class="icon-btn" id="themeBtn">☾</button>
+
     </div>
 
-    <script>
-        const display = document.getElementById('display');
 
-        function appendCharacter(char) {
-            if(display.value === 'Error') {
-                display.value = '';
+    <!-- LOGIN -->
+    <section class="login-card" id="loginCard">
+
+        <div class="login-icon">🔐</div>
+
+        <h2>Private Routine</h2>
+
+        <p>
+            আপনার Google Account দিয়ে সাইন ইন করুন।
+            আপনার routine data এই website-এর storage-এ
+            আপনার account-এর জন্য আলাদাভাবে সংরক্ষিত থাকবে।
+        </p>
+
+        <div class="google-wrap">
+
+            <!--
+                YOUR_GOOGLE_CLIENT_ID
+                এখানে নিজের Google OAuth Client ID বসাতে হবে।
+            -->
+
+            <div
+                id="g_id_onload"
+                data-client_id="YOUR_GOOGLE_CLIENT_ID"
+                data-callback="handleGoogleLogin"
+                data-auto_prompt="false">
+            </div>
+
+            <div
+                class="g_id_signin"
+                data-type="standard"
+                data-size="large"
+                data-theme="outline"
+                data-text="signin_with"
+                data-shape="rectangular">
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- CHECKING -->
+    <section class="checking" id="checking">
+
+        <div class="spinner"></div>
+
+        <h2>Account Checking...</h2>
+
+        <p style="color:var(--muted);margin-top:8px">
+            আপনার saved routine data খোঁজা হচ্ছে
+        </p>
+
+        <p id="checkingTimer"
+           style="margin-top:12px;font-weight:700;color:var(--primary)">
+            3s
+        </p>
+
+    </section>
+
+
+    <!-- APP -->
+    <main id="app">
+
+        <!-- ACCOUNT -->
+        <section class="account">
+
+            <div class="avatar" id="avatar">U</div>
+
+            <div class="account-info">
+
+                <strong id="userName">
+                    User
+                </strong>
+
+                <span id="userEmail">
+                    account@example.com
+                </span>
+
+            </div>
+
+            <button class="logout" onclick="logout()">
+                Logout
+            </button>
+
+        </section>
+
+
+        <!-- TIMER -->
+        <section class="timer-card">
+
+            <span class="badge">
+                PRIVATE 40 DAYS
+            </span>
+
+            <h2 class="timer-title">
+                ৪০ দিনের রুটিন
+            </h2>
+
+            <p class="subtitle">
+                আপনার ব্যক্তিগত routine countdown
+            </p>
+
+
+            <div class="countdown">
+
+                <div class="time-box">
+                    <strong id="days">40</strong>
+                    <span>দিন</span>
+                </div>
+
+                <div class="time-box">
+                    <strong id="hours">00</strong>
+                    <span>ঘণ্টা</span>
+                </div>
+
+                <div class="time-box">
+                    <strong id="minutes">00</strong>
+                    <span>মিনিট</span>
+                </div>
+
+            </div>
+
+
+            <div class="progress">
+
+                <div
+                    class="progress-bar"
+                    id="progressBar">
+                </div>
+
+            </div>
+
+            <div class="progress-text">
+
+                <span id="elapsedText">
+                    0 দিন হয়েছে
+                </span>
+
+                <span id="remainingText">
+                    40 দিন বাকি
+                </span>
+
+            </div>
+
+
+            <div class="buttons">
+
+                <button
+                    class="primary"
+                    onclick="openResetModal()">
+                    ↻ Reset
+                </button>
+
+                <button
+                    class="secondary"
+                    onclick="openReduceModal()">
+                    − কমান
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- REDUCTION -->
+        <section class="reduce-card">
+
+            <h3>
+                ⏱️ Timer Adjustment
+            </h3>
+
+            <p>
+                সর্বোচ্চ ৪০ দিন রাখা যাবে।
+                প্রয়োজন হলে timer কমানো যাবে।
+                মোট সর্বোচ্চ ৩ বার কমানো যাবে।
+            </p>
+
+            <div class="reduce-control">
+
+                <button
+                    class="reduce-btn"
+                    onclick="reduceTimer()">
+                    ১ দিন কমান
+                </button>
+
+                <div
+                    class="reduce-count"
+                    id="reduceCount">
+                    0 / 3 ব্যবহার হয়েছে
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ACCOUNT DATA -->
+        <section class="info-card">
+
+            <div class="info-title">
+                📊 Routine Information
+            </div>
+
+            <div class="info-row">
+
+                <span>বর্তমান Target</span>
+
+                <strong id="targetInfo">
+                    40 দিন
+                </strong>
+
+            </div>
+
+            <div class="info-row">
+
+                <span>শুরু হয়েছে</span>
+
+                <strong id="startInfo">
+                    —
+                </strong>
+
+            </div>
+
+            <div class="info-row">
+
+                <span>শেষ হবে</span>
+
+                <strong id="endInfo">
+                    —
+                </strong>
+
+            </div>
+
+            <div class="info-row">
+
+                <span>Reduction</span>
+
+                <strong id="reductionInfo">
+                    0 / 3
+                </strong>
+
+            </div>
+
+        </section>
+
+
+        <div class="footer">
+            Deen Routine • Private data is stored separately per signed-in account
+        </div>
+
+    </main>
+
+</div>
+
+
+<!-- RESET MODAL -->
+
+<div class="modal" id="resetModal">
+
+    <div class="modal-box">
+
+        <h3>Reset Timer?</h3>
+
+        <p>
+            ৪০ দিন পূর্ণ না হলেও আপনি timer reset করতে পারবেন।
+            Reset করলে নতুন করে countdown শুরু হবে।
+        </p>
+
+        <div class="modal-actions">
+
+            <button
+                class="secondary"
+                onclick="closeModals()">
+                Cancel
+            </button>
+
+            <button
+                class="primary"
+                onclick="resetTimer()">
+                Reset Now
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- REDUCE MODAL -->
+
+<div class="modal" id="reduceModal">
+
+    <div class="modal-box">
+
+        <h3>Timer কমাবেন?</h3>
+
+        <p id="reduceMessage">
+            বর্তমান timer থেকে ১ দিন কমানো হবে।
+        </p>
+
+        <div class="modal-actions">
+
+            <button
+                class="secondary"
+                onclick="closeModals()">
+                Cancel
+            </button>
+
+            <button
+                class="primary"
+                onclick="confirmReduce()">
+                Confirm
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+/* =========================================================
+   CONFIGURATION
+========================================================= */
+
+const MAX_DAYS = 40;
+const MAX_REDUCTIONS = 3;
+
+
+/* =========================================================
+   USER / STORAGE
+========================================================= */
+
+let currentUser = null;
+let userKey = null;
+let routine = null;
+let timerInterval = null;
+
+
+/* =========================================================
+   GOOGLE LOGIN
+========================================================= */
+
+function handleGoogleLogin(response){
+
+    /*
+       Google Identity Services থেকে credential পাওয়া যায়।
+
+       এখানে Gmail password বা Gmail cache নেওয়া হচ্ছে না।
+       Google নিজে authenticated account-এর identity token দেয়।
+    */
+
+    try{
+
+        const payload = parseJwt(response.credential);
+
+        currentUser = {
+
+            sub: payload.sub,
+
+            name: payload.name || "Google User",
+
+            email: payload.email || "",
+
+            picture: payload.picture || ""
+
+        };
+
+        userKey = "deen_routine_" + currentUser.sub;
+
+        showChecking();
+
+    }catch(error){
+
+        alert("Google Account verification failed.");
+
+        console.error(error);
+
+    }
+
+}
+
+
+/* =========================================================
+   JWT PARSER
+========================================================= */
+
+function parseJwt(token){
+
+    const base64Url = token.split('.')[1];
+
+    const base64 =
+        base64Url
+        .replace(/-/g,'+')
+        .replace(/_/g,'/');
+
+    const jsonPayload =
+        decodeURIComponent(
+            atob(base64)
+            .split('')
+            .map(function(c){
+
+                return '%' +
+                    ('00' + c.charCodeAt(0).toString(16))
+                    .slice(-2);
+
+            })
+            .join('')
+        );
+
+    return JSON.parse(jsonPayload);
+}
+
+
+/* =========================================================
+   ACCOUNT CHECKING
+========================================================= */
+
+function showChecking(){
+
+    document.getElementById("loginCard")
+        .style.display = "none";
+
+    document.getElementById("checking")
+        .style.display = "block";
+
+    let seconds = 3;
+
+    document.getElementById("checkingTimer")
+        .textContent = seconds + "s";
+
+    const checkInterval = setInterval(()=>{
+
+        seconds--;
+
+        document.getElementById("checkingTimer")
+            .textContent =
+            seconds > 0 ? seconds + "s" : "Success ✓";
+
+        if(seconds <= 0){
+
+            clearInterval(checkInterval);
+
+            setTimeout(()=>{
+
+                loadAccount();
+
+            },500);
+
+        }
+
+    },1000);
+
+}
+
+
+/* =========================================================
+   LOAD ACCOUNT DATA
+========================================================= */
+
+function loadAccount(){
+
+    document.getElementById("checking")
+        .style.display = "none";
+
+    document.getElementById("app")
+        .style.display = "block";
+
+
+    document.getElementById("userName")
+        .textContent = currentUser.name;
+
+    document.getElementById("userEmail")
+        .textContent = currentUser.email;
+
+    document.getElementById("avatar")
+        .textContent =
+        currentUser.name.charAt(0).toUpperCase();
+
+
+    /*
+       Account-specific storage
+
+       একই browser/origin-এর মধ্যে প্রতিটি Google account-এর
+       আলাদা storage key থাকবে।
+    */
+
+    const saved =
+        localStorage.getItem(userKey);
+
+
+    if(saved){
+
+        try{
+
+            routine = JSON.parse(saved);
+
+        }catch(e){
+
+            routine = createNewRoutine();
+
+        }
+
+    }else{
+
+        routine = createNewRoutine();
+
+        saveRoutine();
+
+    }
+
+
+    updateUI();
+
+    startTimer();
+
+}
+
+
+/* =========================================================
+   NEW ROUTINE
+========================================================= */
+
+function createNewRoutine(){
+
+    const now = Date.now();
+
+    return {
+
+        targetDays: MAX_DAYS,
+
+        startTime: now,
+
+        reductionCount: 0,
+
+        createdAt: now
+
+    };
+
+}
+
+
+/* =========================================================
+   SAVE
+========================================================= */
+
+function saveRoutine(){
+
+    if(!userKey || !routine) return;
+
+    localStorage.setItem(
+
+        userKey,
+
+        JSON.stringify(routine)
+
+    );
+
+}
+
+
+/* =========================================================
+   TIMER
+========================================================= */
+
+function startTimer(){
+
+    if(timerInterval){
+
+        clearInterval(timerInterval);
+
+    }
+
+    updateUI();
+
+    timerInterval = setInterval(()=>{
+
+        updateUI();
+
+    },1000);
+
+}
+
+
+/* =========================================================
+   UPDATE UI
+========================================================= */
+
+function updateUI(){
+
+    if(!routine) return;
+
+    const now = Date.now();
+
+    const duration =
+        routine.targetDays *
+        24 * 60 * 60 * 1000;
+
+    const elapsed =
+        Math.max(0, now - routine.startTime);
+
+    const remaining =
+        Math.max(0, duration - elapsed);
+
+
+    const totalSeconds =
+        Math.floor(remaining / 1000);
+
+    const days =
+        Math.floor(totalSeconds / 86400);
+
+    const hours =
+        Math.floor(
+            (totalSeconds % 86400) / 3600
+        );
+
+    const minutes =
+        Math.floor(
+            (totalSeconds % 3600) / 60
+        );
+
+
+    document.getElementById("days")
+        .textContent = days;
+
+    document.getElementById("hours")
+        .textContent = String(hours).padStart(2,"0");
+
+    document.getElementById("minutes")
+        .textContent = String(minutes).padStart(2,"0");
+
+
+    const elapsedDays =
+        Math.min(
+            routine.targetDays,
+            Math.floor(elapsed / 86400000)
+        );
+
+
+    const percentage =
+        Math.min(
+            100,
+            (elapsed / duration) * 100
+        );
+
+
+    document.getElementById("progressBar")
+        .style.width = percentage + "%";
+
+
+    document.getElementById("elapsedText")
+        .textContent =
+        elapsedDays + " দিন হয়েছে";
+
+
+    document.getElementById("remainingText")
+        .textContent =
+        days + " দিন বাকি";
+
+
+    document.getElementById("targetInfo")
+        .textContent =
+        routine.targetDays + " দিন";
+
+
+    document.getElementById("reductionInfo")
+        .textContent =
+        routine.reductionCount +
+        " / " +
+        MAX_REDUCTIONS;
+
+
+    document.getElementById("reduceCount")
+        .textContent =
+        routine.reductionCount +
+        " / " +
+        MAX_REDUCTIONS +
+        " ব্যবহার হয়েছে";
+
+
+    document.getElementById("startInfo")
+        .textContent =
+        formatDate(routine.startTime);
+
+
+    document.getElementById("endInfo")
+        .textContent =
+        formatDate(
+            routine.startTime + duration
+        );
+
+
+    if(remaining <= 0){
+
+        document.getElementById("remainingText")
+            .textContent = "সময় শেষ";
+
+    }
+
+}
+
+
+/* =========================================================
+   DATE FORMAT
+========================================================= */
+
+function formatDate(timestamp){
+
+    return new Date(timestamp)
+        .toLocaleDateString(
+            "bn-BD",
+            {
+                day:"numeric",
+                month:"short",
+                year:"numeric"
             }
-            display.value += char;
+        );
+
+}
+
+
+/* =========================================================
+   RESET
+========================================================= */
+
+function openResetModal(){
+
+    document.getElementById("resetModal")
+        .style.display = "flex";
+
+}
+
+
+function resetTimer(){
+
+    routine.startTime = Date.now();
+
+    /*
+       Reset করলে targetDays এবং reductionCount
+       আগের অবস্থায় থাকবে।
+    */
+
+    saveRoutine();
+
+    updateUI();
+
+    closeModals();
+
+}
+
+
+/* =========================================================
+   REDUCTION
+========================================================= */
+
+function reduceTimer(){
+
+    if(routine.reductionCount >= MAX_REDUCTIONS){
+
+        alert(
+            "আপনি সর্বোচ্চ ৩ বার timer কমাতে পারবেন।"
+        );
+
+        return;
+
+    }
+
+
+    if(routine.targetDays <= 1){
+
+        alert(
+            "Timer আর কমানো সম্ভব নয়।"
+        );
+
+        return;
+
+    }
+
+
+    document.getElementById("reduceMessage")
+        .textContent =
+        "বর্তমান " +
+        routine.targetDays +
+        " দিন থেকে ১ দিন কমানো হবে।";
+
+
+    document.getElementById("reduceModal")
+        .style.display = "flex";
+
+}
+
+
+function confirmReduce(){
+
+    if(
+        routine.reductionCount >=
+        MAX_REDUCTIONS
+    ){
+
+        closeModals();
+
+        return;
+
+    }
+
+
+    if(routine.targetDays <= 1){
+
+        closeModals();
+
+        return;
+
+    }
+
+
+    /*
+       ১ দিন কমানো হচ্ছে।
+
+       গুরুত্বপূর্ণ:
+       Target কমলেও ইতিমধ্যে যেসব দিন পার হয়েছে
+       সেগুলো নতুন target-এর বাইরে চলে গেলে countdown
+       automatically completed হিসেবে দেখাবে।
+    */
+
+    routine.targetDays--;
+
+    routine.reductionCount++;
+
+    saveRoutine();
+
+    updateUI();
+
+    closeModals();
+
+}
+
+
+/* =========================================================
+   MODAL
+========================================================= */
+
+function openReduceModal(){
+
+    reduceTimer();
+
+}
+
+
+function closeModals(){
+
+    document.getElementById("resetModal")
+        .style.display = "none";
+
+    document.getElementById("reduceModal")
+        .style.display = "none";
+
+}
+
+
+/* =========================================================
+   DARK MODE
+========================================================= */
+
+document.getElementById("themeBtn")
+    .addEventListener("click",()=>{
+
+        document.body.classList.toggle("dark");
+
+        const dark =
+            document.body.classList.contains("dark");
+
+        localStorage.setItem(
+            "deen_theme",
+            dark ? "dark" : "light"
+        );
+
+        document.getElementById("themeBtn")
+            .textContent =
+            dark ? "☀" : "☾";
+
+    });
+
+
+(function(){
+
+    const theme =
+        localStorage.getItem("deen_theme");
+
+    if(theme === "dark"){
+
+        document.body.classList.add("dark");
+
+        document.getElementById("themeBtn")
+            .textContent = "☀";
+
+    }
+
+})();
+
+
+/* =========================================================
+   LOGOUT
+========================================================= */
+
+function logout(){
+
+    if(timerInterval){
+
+        clearInterval(timerInterval);
+
+    }
+
+    currentUser = null;
+
+    userKey = null;
+
+    routine = null;
+
+    document.getElementById("app")
+        .style.display = "none";
+
+    document.getElementById("checking")
+        .style.display = "none";
+
+    document.getElementById("loginCard")
+        .style.display = "block";
+
+}
+
+
+/* =========================================================
+   CLOSE MODAL ON BACKGROUND CLICK
+========================================================= */
+
+document.querySelectorAll(".modal")
+.forEach(modal=>{
+
+    modal.addEventListener("click",(e)=>{
+
+        if(e.target === modal){
+
+            closeModals();
+
         }
 
-        function clearDisplay() {
-            display.value = '';
-        }
+    });
 
-        function deleteLast() {
-            if(display.value !== 'Error') {
-                display.value = display.value.slice(0, -1);
-            }
-        }
+});
 
-        function calculateResult() {
-            try {
-                // ইনপুট খালি থাকলে কিছু করবে না
-                if(display.value === '') return; 
-                // হিসাব করা
-                let result = eval(display.value);
-                display.value = result;
-            } catch (error) {
-                // ভুল ইনপুট দিলে Error দেখাবে
-                display.value = 'Error';
-            }
-        }
-    </script>
+</script>
+
 </body>
 </html>
