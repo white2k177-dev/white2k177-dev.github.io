@@ -27,52 +27,130 @@ window.auth = firebase.auth();
    ========================================================================== */
 window.startGoogleLogin = function() {
     var provider = new firebase.auth.GoogleAuthProvider();
-    
-    // Show loading text if loader exists
-    var loader = document.getElementById('systemLoader');
-    if(loader) loader.style.display = 'flex';
-    
-    window.auth.signInWithPopup(provider).then((result) => {
-        var user = result.user;
-        
-        // Fetch current bonus amount from settings
-        window.database.ref('settings').once('value').then((snap) => {
-            let settings = snap.exists() ? snap.val() : {};
-            let signupBonus = settings.signupBonus ? parseInt(settings.signupBonus) : 0; 
-            
-            // Check database to see if user is actually new to our system
-            window.database.ref(`users/${user.uid}`).once('value').then(userSnap => {
-                let profileUpdates = {
-                    name: user.displayName || "MVX User",
-                    email: user.email || "No Email",
-                    avatarUrl: user.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.displayName || 'User'}`,
-                    lastLogin: firebase.database.ServerValue.TIMESTAMP
-                };
+    provider.setCustomParameters({ prompt: 'select_account' });
 
-                // If completely new user in database, grant setup fields and Coin Bonus
-                if (!userSnap.exists()) {
-                    profileUpdates.coins = signupBonus;
-                    profileUpdates.role = 'user';
-                    profileUpdates.joinedAt = firebase.database.ServerValue.TIMESTAMP;
-                    profileUpdates.followers = 0;
-                    profileUpdates.following = 0;
-                } else {
-                    // Fallback: If user exists but somehow didn't get coins initialized
-                    let existingData = userSnap.val();
-                    if (existingData.coins === undefined || existingData.coins === null) {
-                        profileUpdates.coins = signupBonus;
-                    }
-                }
-                
-                // Update final profile data
-                window.database.ref(`users/${user.uid}`).update(profileUpdates);
-            });
+    var loader = document.getElementById('systemLoader');
+    var loaderText = document.getElementById('loaderText');
+    if (loader) loader.style.display = 'flex';
+    if (loaderText) loaderText.textContent = 'CONNECTING TO GOOGLE...';
+
+    /*
+     * Mobile browsers are much more reliable with redirect authentication
+     * than popup authentication. We therefore use redirect on mobile and
+     * keep popup for desktop. If a desktop popup is blocked/closed, we
+     * automatically fall back to redirect instead of showing a hard error.
+     */
+    var isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+
+    if (isMobile) {
+        if (loaderText) loaderText.textContent = 'REDIRECTING TO GOOGLE...';
+        return window.auth.signInWithRedirect(provider).catch(function(error) {
+            if (loader) loader.style.display = 'none';
+            console.error('Google redirect sign-in failed:', error);
+            showLoginError(error);
         });
-    }).catch((error) => {
-        if(loader) loader.style.display = 'none';
-        alert("Google Sign-In Failed: " + error.message);
+    }
+
+    return window.auth.signInWithPopup(provider).then(function(result) {
+        return finishGoogleProfile(result.user);
+    }).catch(function(error) {
+        console.warn('Google popup failed:', error);
+
+        // Popup was closed/blocked. Use redirect as a safe fallback.
+        if (
+            error &&
+            (
+                error.code === 'auth/popup-closed-by-user' ||
+                error.code === 'auth/popup-blocked' ||
+                error.code === 'auth/cancelled-popup-request'
+            )
+        ) {
+            if (loaderText) loaderText.textContent = 'REDIRECTING TO GOOGLE...';
+            return window.auth.signInWithRedirect(provider).catch(function(redirectError) {
+                if (loader) loader.style.display = 'none';
+                console.error('Google redirect fallback failed:', redirectError);
+                showLoginError(redirectError);
+            });
+        }
+
+        if (loader) loader.style.display = 'none';
+        showLoginError(error);
     });
 };
+
+/* Complete profile setup after Google authentication. */
+function finishGoogleProfile(user) {
+    if (!user) return Promise.resolve();
+
+    return window.database.ref('settings').once('value').then(function(snap) {
+        var settings = snap.exists() ? snap.val() : {};
+        var signupBonus = settings.signupBonus ? parseInt(settings.signupBonus, 10) : 0;
+
+        return window.database.ref('users/' + user.uid).once('value').then(function(userSnap) {
+            var profileUpdates = {
+                name: user.displayName || "MVX User",
+                email: user.email || "No Email",
+                avatarUrl: user.photoURL ||
+                    'https://api.dicebear.com/7.x/avataaars/svg?seed=' +
+                    encodeURIComponent(user.displayName || 'User'),
+                lastLogin: firebase.database.ServerValue.TIMESTAMP
+            };
+
+            if (!userSnap.exists()) {
+                profileUpdates.coins = signupBonus;
+                profileUpdates.role = 'user';
+                profileUpdates.joinedAt = firebase.database.ServerValue.TIMESTAMP;
+                profileUpdates.followers = 0;
+                profileUpdates.following = 0;
+            } else {
+                var existingData = userSnap.val() || {};
+                if (existingData.coins === undefined || existingData.coins === null) {
+                    profileUpdates.coins = signupBonus;
+                }
+            }
+
+            return window.database.ref('users/' + user.uid).update(profileUpdates);
+        });
+    });
+}
+
+/* Read the result after Google redirect returns to login.html. */
+if (window.location.pathname.includes('login.html')) {
+    window.auth.getRedirectResult().then(function(result) {
+        if (result && result.user) {
+            finishGoogleProfile(result.user).then(function() {
+                console.log('Google redirect login completed.');
+            }).catch(function(error) {
+                var loader = document.getElementById('systemLoader');
+                if (loader) loader.style.display = 'none';
+                console.error('Profile setup failed:', error);
+                showLoginError(error);
+            });
+        } else {
+            var loader = document.getElementById('systemLoader');
+            if (loader) loader.style.display = 'none';
+        }
+    }).catch(function(error) {
+        var loader = document.getElementById('systemLoader');
+        if (loader) loader.style.display = 'none';
+        console.error('Google redirect result failed:', error);
+        showLoginError(error);
+    });
+}
+
+function showLoginError(error) {
+    var message = (error && error.message) ? error.message : 'Google Sign-In failed.';
+    var code = (error && error.code) ? error.code : '';
+
+    // Keep technical detail in console; show a useful short message to users.
+    if (code === 'auth/unauthorized-domain') {
+        alert('Login is not enabled for this website domain. Add this domain to Firebase Authentication > Settings > Authorized domains.');
+    } else if (code === 'auth/operation-not-allowed') {
+        alert('Google Sign-In is disabled in Firebase Authentication.');
+    } else {
+        alert('Google Sign-In failed. Please try again.');
+    }
+}
 
 /* ==========================================================================
    AUTH STATE OBSERVER & REAL-TIME SYNC
