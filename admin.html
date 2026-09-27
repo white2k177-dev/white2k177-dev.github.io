@@ -1,0 +1,1482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#090E17">
+    <title>Master Admin Panel | MVX</title>
+    
+    <script>
+        // Security check
+        if (sessionStorage.getItem('mvx_role') !== 'owner') {
+            window.location.replace('index.html');
+        }
+    </script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
+    <style>
+        /* ==================== PREMIUM UI VARIABLES ==================== */
+        :root {
+            --bg-dark: #090E17;
+            --card-bg: #121B2A;
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --primary: #00E676;
+            --primary-hover: #00C853;
+            --primary-glow: 0 0 20px rgba(0, 230, 118, 0.2);
+            --text-main: #FFFFFF;
+            --text-dim: #94A3B8;
+            --danger: #FF3D00;
+            --success: #00E676;
+            --warning: #FFC107;
+            --info: #29B6F6;
+            --gift: #E040FB;
+            --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.5);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background-color: var(--bg-dark); color: var(--text-main); padding-bottom: 50px; }
+
+        /* ==================== 1. PREMIUM HEADER ==================== */
+        .master-header {
+            background: rgba(18, 27, 42, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-glass);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .header-brand { display: flex; align-items: center; gap: 12px; }
+        .header-brand i.fa-shield-alt { font-size: 22px; color: var(--primary); text-shadow: var(--primary-glow); }
+        .header-brand h1 { font-family: 'Orbitron', sans-serif; font-size: 18px; font-weight: 800; letter-spacing: 1px; display: flex; align-items: center; gap: 8px; }
+        .verified-badge { color: var(--primary); font-size: 14px; text-shadow: var(--primary-glow); }
+        
+        .btn-exit {
+            background: rgba(255, 61, 0, 0.1);
+            color: var(--danger);
+            border: 1px solid rgba(255, 61, 0, 0.2);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 12px;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-exit:hover { background: var(--danger); color: #fff; box-shadow: 0 0 15px rgba(255, 61, 0, 0.3); transform: translateY(-2px); }
+
+        /* ==================== 2. TECHNICAL QUICK STATS ==================== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .stat-card {
+            background: linear-gradient(90deg, rgba(18, 27, 42, 0.9), rgba(9, 14, 23, 0.9));
+            border: 1px solid var(--border-glass);
+            border-left: 3px solid transparent;
+            border-radius: 8px;
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            transition: var(--transition);
+        }
+        .stat-card:nth-child(1) { border-left-color: var(--info); }
+        .stat-card:nth-child(2) { border-left-color: var(--warning); }
+        
+        .stat-card:hover { transform: translateY(-2px); border-color: rgba(255,255,255,0.2); border-left-width: 4px; }
+        
+        .stat-card i { font-size: 20px; opacity: 0.8; }
+        .stat-info { text-align: right; }
+        .stat-val { font-size: 20px; font-weight: 800; font-family: 'Orbitron', sans-serif; margin-bottom: 2px; color: #fff; letter-spacing: 1px; }
+        .stat-lbl { font-size: 10px; color: var(--text-dim); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; font-family: monospace; }
+
+        /* ==================== 3. SIDEBAR DRAWER HAMBURGER MENU ==================== */
+        .tab-menu-wrapper {
+            position: fixed;
+            top: 0;
+            left: -280px;
+            width: 280px;
+            height: 100vh;
+            background: #090E17;
+            border-right: 1px solid var(--border-glass);
+            box-shadow: 5px 0 30px rgba(0,0,0,0.8);
+            z-index: 2500;
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            overflow-y: auto;
+            white-space: nowrap;
+            transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .tab-menu-wrapper.open { left: 0; }
+        .sidebar-overlay-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            z-index: 2400;
+            display: none;
+        }
+        .sidebar-overlay-backdrop.active { display: block; }
+        .sidebar-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 14px;
+            color: var(--primary);
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+            padding-left: 5px;
+            text-transform: uppercase;
+            border-bottom: 1px dashed var(--border-glass);
+            padding-bottom: 10px;
+        }
+        .tab-chip {
+            background: var(--card-bg);
+            border: 1px solid var(--border-glass);
+            color: var(--text-dim);
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex !important;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            text-align: left;
+            transition: var(--transition);
+        }
+        .tab-chip i { font-size: 14px; width: 20px; text-align: center; }
+        .tab-chip:hover { border-color: rgba(255,255,255,0.2); color: #fff; }
+        .tab-chip.active {
+            background: rgba(0, 230, 118, 0.1);
+            color: var(--primary);
+            border-color: var(--primary);
+            box-shadow: var(--primary-glow);
+        }
+
+        /* ==================== 4. DATA PANELS & CARDS ==================== */
+        .data-panel { display: none; padding: 0 30px; max-width: 1400px; margin: 20px auto 0; animation: fadeUp 0.3s ease-out; }
+        .data-panel.active { display: block; }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-title { font-family: 'Orbitron', sans-serif; font-size: 15px; color: var(--primary); margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 8px; border-bottom: 1px dashed var(--border-glass); padding-bottom: 10px; }
+
+        .item-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-glass);
+            border-radius: 12px;
+            padding: 12px 15px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: var(--transition);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: visible;
+        }
+        .item-card:hover { border-color: rgba(255,255,255,0.15); transform: translateX(2px); }
+        
+        .item-img { width: 55px; height: 55px; border-radius: 12px; object-fit: cover; border: 1px solid var(--border-glass); flex-shrink: 0; }
+        .zoomable-img { cursor: zoom-in; transition: var(--transition); }
+        .zoomable-img:hover { transform: scale(1.1); border-color: var(--primary); box-shadow: var(--primary-glow); }
+
+        .item-info { flex: 1; overflow: hidden; }
+        .item-info h3 { font-size: 15px; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff; font-weight: 600; display:flex; align-items:center; gap:8px;}
+        .item-info p { font-size: 12px; color: var(--text-dim); margin-bottom: 2px; }
+        
+        .item-actions { display: flex; align-items: center; position: relative; }
+        
+        .dropdown { position: relative; display: inline-block; }
+        .dropdown-btn { background: none; border: none; color: var(--text-dim); font-size: 20px; cursor: pointer; padding: 5px 10px; transition: var(--transition); outline: none; }
+        .dropdown-btn:hover { color: var(--primary); }
+        .dropdown-content { 
+            display: none; position: absolute; right: 0; top: 100%; 
+            background: #0F1724; border: 1px solid var(--border-glass); 
+            min-width: 160px; box-shadow: 0 8px 30px rgba(0,0,0,0.8); 
+            z-index: 100; border-radius: 8px; overflow: hidden; 
+        }
+        .dropdown:hover .dropdown-content { display: block; animation: fadeUp 0.2s ease-out; }
+        .dropdown-item { 
+            padding: 12px 15px; color: #fff; text-decoration: none; 
+            display: flex; align-items: center; gap: 10px; font-size: 12px; 
+            background: none; border: none; width: 100%; text-align: left; cursor: pointer;
+            border-bottom: 1px solid rgba(255,255,255,0.05); transition: background 0.2s; font-family: monospace; font-weight: 600; text-transform: uppercase;
+        }
+        .dropdown-item:last-child { border-bottom: none; }
+        .dropdown-item:hover { background: rgba(0,230,118,0.1); color: var(--primary); }
+
+        .empty-state { text-align: center; padding: 60px 20px; color: var(--text-dim); background: rgba(0,0,0,0.2); border-radius: 12px; border: 1px dashed var(--border-glass); }
+        .empty-state i { font-size: 40px; margin-bottom: 15px; opacity: 0.3; }
+        .empty-state p { font-size: 14px; font-weight: 500; }
+
+        /* ==================== 5. MODALS & FORMS ==================== */
+        .glass-input {
+            width: 100%; padding: 12px 15px; background: rgba(0,0,0,0.4);
+            border: 1px solid var(--border-glass); border-radius: 8px;
+            color: #fff; font-size: 14px; margin-bottom: 15px; outline: none;
+            transition: var(--transition);
+        }
+        .glass-input:focus { border-color: var(--primary); box-shadow: 0 0 8px rgba(0,230,118,0.1); }
+        .input-label { display: block; font-size: 11px; color: var(--text-dim); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+        
+        .btn-primary {
+            width: 100%; padding: 14px; border: none; border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+            color: #000; font-family: 'Orbitron', sans-serif; font-weight: 800;
+            font-size: 14px; letter-spacing: 1px; cursor: pointer;
+            box-shadow: var(--primary-glow); transition: var(--transition);
+        }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,230,118,0.3); }
+        .btn-primary:active { transform: scale(0.98); }
+
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 2000; opacity: 0; visibility: hidden; transition: var(--transition);
+        }
+        .modal-overlay.active { opacity: 1; visibility: visible; }
+        .play-modal {
+            background: var(--bg-dark); width: 95%; max-width: 500px;
+            border-radius: 16px; border: 1px solid var(--border-glass);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.7); transform: scale(0.95);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden; max-height: 90vh; display: flex; flex-direction: column;
+        }
+        .modal-overlay.active .play-modal { transform: scale(1); }
+        .modal-header {
+            padding: 20px; border-bottom: 1px solid var(--border-glass);
+            display: flex; justify-content: space-between; align-items: center;
+            background: rgba(255,255,255,0.02);
+        }
+        .modal-header h3 { font-family: 'Orbitron', sans-serif; font-size: 16px; color: #fff; display:flex; align-items:center; gap:8px;}
+        .close-modal { font-size: 20px; color: var(--text-dim); cursor: pointer; transition: var(--transition); }
+        .close-modal:hover { color: var(--danger); }
+        .modal-body { padding: 25px; overflow-y: auto; }
+
+        .report-card { border-left: 3px solid var(--danger); }
+        .badge-danger { display: inline-block; background: rgba(255, 61, 0, 0.15); color: var(--danger); padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; margin-top: 6px; border: 1px solid rgba(255, 61, 0, 0.3); text-transform: uppercase;}
+        .time-badge { color: var(--primary); font-size: 11px; font-family: monospace; font-weight: bold; background: rgba(0, 230, 118, 0.1); padding: 3px 6px; border-radius: 4px; border: 1px solid rgba(0,230,118,0.2); display: inline-flex; align-items: center; gap: 4px;}
+
+        .app-select-box {
+            background: rgba(0,0,0,0.3); border: 1px solid var(--border-glass);
+            border-radius: 8px; max-height: 200px; overflow-y: auto;
+            padding: 10px; margin-bottom: 15px;
+        }
+        .app-check-item { display: flex; align-items: center; gap: 10px; padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); transition: var(--transition); border-radius: 6px;}
+        .app-check-item:hover { background: rgba(255,255,255,0.02); }
+        .app-check-item:last-child { border-bottom: none; }
+        .app-check-item input { width: 16px; height: 16px; accent-color: var(--primary); cursor: pointer;}
+        .app-check-item label { font-size: 13px; color: #fff; cursor: pointer; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500;}
+
+        .config-wrapper { background: var(--card-bg); border: 1px solid var(--border-glass); padding: 25px; border-radius: 16px; margin-bottom: 25px; box-shadow: var(--shadow-soft); }
+
+        /* Hidden system links */
+        .hidden-sys-val { display: none; }
+
+        @media (max-width: 768px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 10px;}
+            .master-header { padding: 15px 20px; }
+            .data-panel { padding: 0 20px; margin-top: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="master-header">
+        <div class="header-brand">
+            <i class="fas fa-bars" id="hamburgerMenuBtn" style="font-size: 20px; color: var(--primary); cursor: pointer; margin-right: 12px;"></i>
+            <i class="fas fa-shield-alt"></i>
+            <h1>MASTER PANEL <i class="fas fa-check-circle verified-badge" title="Verified Owner"></i></h1>
+        </div>
+        <a href="index.html" class="btn-exit"><i class="fas fa-sign-out-alt"></i> Exit</a>
+    </header>
+
+    <div class="tab-menu-wrapper">
+        <div class="sidebar-title">Menu</div>
+        <div class="tab-chip active" onclick="switchAdminPanelSection('users', this)"><i class="fas fa-users"></i> Users</div>
+        <div class="tab-chip" onclick="switchAdminPanelSection('pending', this)"><i class="fas fa-hourglass-half"></i> Pending Apps</div>
+        <div class="tab-chip" onclick="switchAdminPanelSection('live', this)"><i class="fas fa-database"></i> All Apps</div>
+        <div class="tab-chip" onclick="switchAdminPanelSection('voucher', this)"><i class="fas fa-ticket-alt"></i> Redeem Codes</div>
+        <div class="tab-chip" onclick="switchAdminPanelSection('reports', this)"><i class="fas fa-bug"></i> Reports</div>
+        <div class="tab-chip" onclick="switchAdminPanelSection('notices', this)"><i class="fas fa-bell"></i> Notifications</div>
+        <div class="tab-chip" onclick="switchAdminPanelSection('config', this)"><i class="fas fa-cog"></i> Settings</div>
+    </div>
+
+    <div id="usersPanel" class="data-panel active">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <i class="fas fa-users" style="color: var(--info);"></i>
+                <div class="stat-info">
+                    <div class="stat-val" id="statUsers">0</div>
+                    <div class="stat-lbl">Total Users</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-bolt" style="color: var(--warning);"></i>
+                <div class="stat-info">
+                    <div class="stat-val" id="statActiveToday">0</div>
+                    <div class="stat-lbl">Active Today</div>
+                </div>
+            </div>
+            <span class="hidden-sys-val" id="statLiveApps">0</span>
+            <span class="hidden-sys-val" id="statPendingApps">0</span>
+            <span class="hidden-sys-val" id="statReports">0</span>
+        </div>
+
+        <div class="section-title"><i class="fas fa-user-friends"></i> User List</div>
+        <div id="liveUsersTrackingContainer">
+            <div class="empty-state"><i class="fas fa-circle-notch fa-spin" style="color:var(--info);"></i><p>Loading users...</p></div>
+        </div>
+    </div>
+
+    <div id="pendingPanel" class="data-panel">
+        <div class="section-title"><i class="fas fa-hourglass-half"></i> Pending Apps</div>
+        <div id="pendingContainerQueue">
+            <div class="empty-state"><i class="fas fa-circle-notch fa-spin" style="color:var(--warning);"></i><p>Loading pending apps...</p></div>
+        </div>
+    </div>
+
+    <div id="livePanel" class="data-panel">
+        <div class="section-title"><i class="fas fa-layer-group"></i> Active Apps</div>
+        <div id="liveWarehouseContainer">
+            <div class="empty-state"><i class="fas fa-circle-notch fa-spin" style="color:var(--primary);"></i><p>Loading apps...</p></div>
+        </div>
+    </div>
+
+    <div id="voucherPanel" class="data-panel">
+        <div class="config-wrapper">
+            <div class="section-title"><i class="fas fa-magic"></i> Create Redeem Code</div>
+            
+            <label class="input-label">Redeem Code</label>
+            <input type="text" id="vCode" class="glass-input" placeholder="e.g. MVX500" style="text-transform:uppercase; font-family:'Orbitron', sans-serif; font-weight:bold; letter-spacing:2px;">
+
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-bottom: 15px;">
+                <div>
+                    <label class="input-label">Reward Type</label>
+                    <select id="vType" class="glass-input" onchange="toggleVoucherRewardInterface(this.value)" style="margin-bottom:0;">
+                        <option value="coins">Give Coins</option>
+                        <option value="premium_bypass">Unlock App</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="input-label">User Limit</label>
+                    <input type="number" id="vMaxClaims" class="glass-input" placeholder="10" value="10" style="margin-bottom:0;">
+                </div>
+            </div>
+
+            <div id="voucherCoinUI">
+                <label class="input-label" style="color:var(--warning);">Coin Amount</label>
+                <input type="number" id="vValueCoins" class="glass-input" placeholder="e.g. 500">
+            </div>
+
+            <div id="voucherAppUI" style="display:none;">
+                <label class="input-label" style="color:var(--primary);">Select App to Unlock</label>
+                <div class="app-select-box">
+                    <div class="app-check-item" style="border-bottom: 1px solid rgba(0,230,118,0.3); margin-bottom: 8px; background: rgba(0,230,118,0.05);">
+                        <input type="checkbox" id="vCheckAllApps" onchange="toggleAllVoucherApps(this.checked)">
+                        <label for="vCheckAllApps" style="color:var(--primary); font-weight:700;">Unlock All Apps</label>
+                    </div>
+                    <div id="voucherAppCheckboxContainer">
+                        <div style="text-align:center; font-size:12px; color:var(--text-dim); padding:10px;">Loading apps...</div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn-primary" onclick="executeVoucherMintingProtocolToServer()"><i class="fas fa-plus-circle"></i> Create Code</button>
+        </div>
+
+        <div class="section-title"><i class="fas fa-ticket-alt"></i> Active Codes</div>
+        <div id="liveVouchersTrackingContainer">
+            <div class="empty-state"><p>No active codes.</p></div>
+        </div>
+    </div>
+
+    <div id="reportsPanel" class="data-panel">
+        <div class="section-title"><i class="fas fa-bug"></i> User Reports</div>
+        <div id="userReportsTrackingContainer">
+            <div class="empty-state"><i class="fas fa-circle-notch fa-spin" style="color:var(--danger);"></i><p>Loading reports...</p></div>
+        </div>
+    </div>
+
+    <div id="noticesPanel" class="data-panel">
+        <div class="config-wrapper">
+            <div class="section-title"><i class="fas fa-bullhorn"></i> Send Notification</div>
+            
+            <label class="input-label">Notification Title</label>
+            <input type="text" id="nTitle" class="glass-input" placeholder="e.g. New Update">
+            
+            <label class="input-label">Notification Message</label>
+            <textarea id="nMessage" class="glass-input" placeholder="Write message here..." style="min-height: 80px; resize:vertical;"></textarea>
+            
+            <label class="input-label" style="color:var(--info);">Notification Type</label>
+            <select id="nType" class="glass-input" onchange="toggleNotificationType(this.value)">
+                <option value="app">App Notification</option>
+                <option value="link">Link Notification</option>
+            </select>
+
+            <div id="nAppContainer">
+                <label class="input-label">Select App</label>
+                <select id="nAppSelect" class="glass-input">
+                    <option value="">-- No App Selected --</option>
+                </select>
+            </div>
+
+            <div id="nLinkContainer" style="display:none;">
+                <label class="input-label">External Link</label>
+                <input type="text" id="nLink" class="glass-input" placeholder="https://">
+            </div>
+
+            <button class="btn-primary" style="background: linear-gradient(135deg, var(--info), #0288D1);" onclick="dispatchManualSystemNotice()"><i class="fas fa-paper-plane"></i> Send Notification</button>
+        </div>
+
+        <div class="section-title"><i class="fas fa-history"></i> Notification History</div>
+        <div id="globalNoticesTrackingContainer">
+            <div class="empty-state"><i class="fas fa-circle-notch fa-spin" style="color:var(--info);"></i><p>Loading history...</p></div>
+        </div>
+    </div>
+
+    <div id="configPanel" class="data-panel">
+        <div class="config-wrapper">
+            <div class="section-title"><i class="fas fa-cog"></i> Settings</div>
+
+            <label class="input-label" style="color:var(--warning);">Sign Up Bonus (Coins)</label>
+            <div style="display:flex; gap:10px; margin-bottom:20px;">
+                <input type="number" id="configBonusCoins" class="glass-input" style="margin-bottom:0;" placeholder="e.g. 100">
+                <button class="btn-primary" style="width:120px; background:var(--warning); color:#000;" onclick="updateSystemConfigData('signupBonus', parseInt(document.getElementById('configBonusCoins').value))"><i class="fas fa-save"></i> Save</button>
+            </div>
+
+            <div style="margin-bottom:20px;">
+                <label class="input-label">Theme</label>
+                <select id="configDefaultTheme" class="glass-input" onchange="updateSystemConfigData('defaultTheme', this.value)">
+                    <option value="dark">Dark Mode</option>
+                    <option value="light">Light Mode</option>
+                </select>
+            </div>
+            
+            <div style="margin-bottom:25px; text-align:center; padding: 15px; background:rgba(0,0,0,0.2); border-radius:12px; border:1px solid var(--border-glass);">
+                <label class="input-label" style="color:var(--primary); text-align:left;">App Logo</label>
+                <div style="position:relative; display:inline-block;">
+                    <img id="configLogoPreview" style="width:90px; height:90px; border-radius:16px; object-fit:cover; border:2px solid var(--border-glass); background:rgba(0,0,0,0.5);">
+                    <label for="configLogoFile" style="position:absolute; bottom:-5px; right:-5px; background:var(--primary); width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; color:#000; box-shadow:0 2px 10px rgba(0,0,0,0.5); transition:0.2s;">
+                        <i class="fas fa-plus"></i>
+                    </label>
+                    <input type="file" id="configLogoFile" accept="image/*" style="display:none;">
+                </div>
+                <p id="configLogoStatus" style="font-size:11px; color:var(--warning); margin-top:10px; font-family:monospace;"></p>
+            </div>
+
+            <label class="input-label" style="color:var(--info); border-bottom: 1px dashed var(--border-glass); padding-bottom: 8px; margin-bottom: 12px;"><i class="fas fa-user-shield"></i> Admin Emails</label>
+            <div style="display:flex; gap:10px; margin-bottom:15px;">
+                <input type="email" id="configNewAdminEmail" class="glass-input" style="margin-bottom:0;" placeholder="Enter email...">
+                <button class="btn-primary" style="width:120px; background:var(--info); color:#000;" onclick="addNewMasterAdminEmail()"><i class="fas fa-plus"></i> Add Admin</button>
+            </div>
+            <div class="app-select-box" id="configAdminListContainer">
+                <div style="text-align:center; font-size:12px; color:var(--text-dim);">Loading admins...</div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="userGiftModal">
+        <div class="play-modal">
+            <div class="modal-header">
+                <h3><i class="fas fa-gift" style="color:var(--gift);"></i> Give Gift</h3>
+                <i class="fas fa-times close-modal" onclick="closeGiftModal()"></i>
+            </div>
+            <div class="modal-body">
+                <div style="text-align:center; margin-bottom:20px; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px; border: 1px solid var(--border-glass);">
+                    <img src="" id="giftUserAvatar" style="width:60px; height:60px; border-radius:50%; border:2px solid var(--gift); object-fit:cover; margin-bottom:10px;">
+                    <h3 id="giftUserName" style="color:#fff; font-size:16px; font-weight:700;">User Name</h3>
+                    <p id="giftUserEmail" style="color:var(--text-dim); font-size:11px; margin-top:2px; font-family:monospace;"></p>
+                </div>
+
+                <label class="input-label">Reward Type</label>
+                <select id="giftTypeSelector" class="glass-input" onchange="toggleDirectGiftUI(this.value)">
+                    <option value="coins">Give Coins</option>
+                    <option value="premium_app">Unlock App</option>
+                </select>
+
+                <div id="giftCoinsUI">
+                    <label class="input-label" style="color:var(--warning);">Coin Amount</label>
+                    <input type="number" id="giftCoinsAmount" class="glass-input" placeholder="e.g. 1000">
+                </div>
+
+                <div id="giftAppUI" style="display:none;">
+                    <label class="input-label" style="color:var(--primary);">Select App</label>
+                    <select id="giftAppSelect" class="glass-input">
+                        <option value="">-- Select --</option>
+                    </select>
+                </div>
+
+                <button class="btn-primary" style="background: linear-gradient(135deg, var(--gift), #D500F9); margin-top: 5px;" onclick="dispatchDirectGiftToUser()"><i class="fas fa-bolt"></i> Send Gift</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="masterAppEditModal">
+        <div class="play-modal" style="max-width: 650px;">
+            <div class="modal-header">
+                <h3><i class="fas fa-edit" style="color:var(--warning);"></i> Edit App</h3>
+                <i class="fas fa-times close-modal" onclick="document.getElementById('masterAppEditModal').classList.remove('active')"></i>
+            </div>
+            <div class="modal-body" style="padding: 20px;">
+                <input type="hidden" id="meAppId">
+                
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+                    <div>
+                        <label class="input-label">App Title</label>
+                        <input type="text" id="meName" class="glass-input" style="margin-bottom: 10px;">
+                    </div>
+                    <div>
+                        <label class="input-label" style="color:var(--info);">Developer</label>
+                        <input type="text" id="meDev" class="glass-input" style="margin-bottom: 10px;">
+                    </div>
+                </div>
+                
+                <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:15px; margin-bottom: 10px;">
+                    <div>
+                        <label class="input-label">Version</label>
+                        <input type="text" id="meVer" class="glass-input" style="margin-bottom: 0;">
+                    </div>
+                    <div>
+                        <label class="input-label">Size</label>
+                        <input type="text" id="meSize" class="glass-input" style="margin-bottom: 0;">
+                    </div>
+                    <div>
+                        <label class="input-label">Type</label>
+                        <select id="meCat" class="glass-input" style="margin-bottom: 0;" onchange="toggleEditAccessType(this.value)">
+                            <option value="free">Free App</option>
+                            <option value="paid">Premium</option>
+                            <option value="locked">Locked</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="editCoinPriceWrapper" style="display:none; margin-bottom: 10px;">
+                    <label class="input-label" style="color:var(--warning);">Coin Price</label>
+                    <input type="number" id="meCoinPrice" class="glass-input" placeholder="0" style="margin-bottom: 0;">
+                </div>
+                
+                <div id="editVideoLinkWrapper" style="display:none; margin-bottom: 10px;">
+                    <label class="input-label" style="color:var(--danger);">Video Link</label>
+                    <input type="text" id="meVideoLink" class="glass-input" placeholder="YouTube/Video URL" style="margin-bottom: 0;">
+                </div>
+
+                <div style="display:flex; align-items: center; gap: 10px; margin-bottom: 15px; background: rgba(255,255,255,0.02); padding: 10px; border-radius: 8px; border: 1px dashed var(--border-glass);">
+                    <input type="checkbox" id="meTrending" style="width: 16px; height: 16px; accent-color: var(--primary);">
+                    <label for="meTrending" style="color: #fff; font-size: 13px; cursor: pointer;">Trending App</label>
+                </div>
+
+                <div style="margin-bottom: 15px; text-align: center; background:rgba(0,0,0,0.2); padding:15px; border-radius:8px; border:1px solid var(--border-glass);">
+                    <label class="input-label" style="color:var(--primary); text-align:left;">App Logo</label>
+                    <div style="position:relative; display:inline-block;">
+                        <img id="meLogoPreview" style="width:80px; height:80px; border-radius:12px; object-fit:cover; border:2px solid var(--border-glass); background:rgba(0,0,0,0.5);">
+                        <label for="meLogoFile" style="position:absolute; bottom:-5px; right:-5px; background:var(--primary); width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; color:#000; box-shadow:0 2px 10px rgba(0,0,0,0.5); transition:0.2s;">
+                            <i class="fas fa-plus"></i>
+                        </label>
+                        <input type="file" id="meLogoFile" accept="image/*" style="display:none;">
+                        <input type="hidden" id="meLogoUrl">
+                    </div>
+                    <p id="meLogoStatus" style="font-size:11px; color:var(--warning); margin-top:10px; font-family:monospace;"></p>
+                </div>
+
+                <label class="input-label" style="color:var(--primary);">Download Links (Max 5)</label>
+                <div id="meDynamicLinksContainer" style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px; border: 1px solid var(--border-glass); margin-bottom: 10px; display: flex; flex-direction: column;">
+                    </div>
+                <button id="addMoreEditLinkBtn" class="btn-primary" style="background:transparent; border:1px dashed var(--primary); color:var(--primary); margin-bottom:15px;" onclick="addNewEditLinkRow()"><i class="fas fa-plus"></i> Add Link</button>
+
+                <label class="input-label">App Description</label>
+                <textarea id="meDescription" class="glass-input" style="min-height:90px; resize:vertical; line-height: 1.5; font-size: 13px;"></textarea>
+                
+                <button class="btn-primary" style="background:linear-gradient(135deg, var(--warning), #FF8F00); color:#000; margin-top: 5px;" onclick="submitMasterAppUpdate()"><i class="fas fa-save"></i> Save Updates</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="lightbox-overlay" id="adminLightbox" onclick="closeAdminLightbox()" style="display: none;">
+        <i class="fas fa-times lightbox-close" onclick="closeAdminLightbox()" style="position: absolute; top: 20px; right: 25px; font-size: 30px; color: #fff; cursor: pointer; z-index: 10000; text-shadow: 0 0 10px rgba(0,0,0,0.8); transition: 0.3s;"></i>
+        <img src="" class="lightbox-img" id="adminLightboxImg" onclick="event.stopPropagation()" style="max-width: 90%; max-height: 90%; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);">
+    </div>
+
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="firebase-config.js"></script>
+
+    <script>
+        const databaseRef = firebase.database();
+        let storeAppsCacheForSelects = []; 
+        let currentGiftTargetUid = null;
+        let currentGiftTargetName = null;
+
+        function switchAdminPanelSection(panelId, btnElement) {
+            document.querySelectorAll('.tab-chip').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.data-panel').forEach(panel => panel.classList.remove('active'));
+            
+            if(btnElement) {
+                btnElement.classList.add('active');
+            }
+            document.getElementById(panelId + 'Panel').classList.add('active');
+
+            const menuWrapper = document.querySelector('.tab-menu-wrapper');
+            const backdrop = document.querySelector('.sidebar-overlay-backdrop');
+            if(menuWrapper) menuWrapper.classList.remove('open');
+            if(backdrop) backdrop.classList.remove('active');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const hamburger = document.getElementById('hamburgerMenuBtn');
+            const menuWrapper = document.querySelector('.tab-menu-wrapper');
+            
+            let backdrop = document.createElement('div');
+            backdrop.className = 'sidebar-overlay-backdrop';
+            document.body.appendChild(backdrop);
+            
+            if(hamburger) {
+                hamburger.addEventListener('click', () => {
+                    menuWrapper.classList.toggle('open');
+                    backdrop.classList.toggle('active');
+                });
+            }
+            
+            backdrop.addEventListener('click', () => {
+                menuWrapper.classList.remove('open');
+                backdrop.classList.remove('active');
+            });
+        });
+
+        window.makeUserAdminProtocol = function(uid, email) {
+            if(confirm("Are you sure you want to grant admin access to this user account?")) {
+                databaseRef.ref(`users/${uid}/role`).set('owner').then(() => {
+                    if(email && email !== 'No Email') {
+                        const safeKey = email.replace(/\\./g, ',');
+                        databaseRef.ref(`settings/masterAdmins/${safeKey}`).set(email);
+                    }
+                    alert("User promoted to ADMIN status successfully!");
+                });
+            }
+        };
+
+        window.openAdminLightbox = function(url) {
+            document.getElementById('adminLightboxImg').src = url;
+            const lb = document.getElementById('adminLightbox');
+            lb.style.position = 'fixed'; lb.style.top = '0'; lb.style.left = '0'; lb.style.width = '100%'; lb.style.height = '100%';
+            lb.style.background = 'rgba(0,0,0,0.9)'; lb.style.display = 'flex'; lb.style.justifyContent = 'center'; lb.style.alignItems = 'center'; lb.style.zIndex = '9999';
+            lb.classList.add('active');
+            setTimeout(() => document.getElementById('adminLightboxImg').style.transform = 'scale(1)', 10);
+        }
+        window.closeAdminLightbox = function() {
+            document.getElementById('adminLightboxImg').style.transform = 'scale(0.9)';
+            setTimeout(() => {
+                document.getElementById('adminLightbox').classList.remove('active');
+                document.getElementById('adminLightbox').style.display = 'none';
+            }, 300);
+        }
+
+        function timeSince(dateTimestamp) {
+            if(!dateTimestamp) return "Unknown";
+            const seconds = Math.floor((new Date() - dateTimestamp) / 1000);
+            let interval = seconds / 31536000;
+            if (interval > 1) return Math.floor(interval) + " years";
+            interval = seconds / 2592000;
+            if (interval > 1) return Math.floor(interval) + " months";
+            interval = seconds / 86400;
+            if (interval > 1) return Math.floor(interval) + " days";
+            interval = seconds / 3600;
+            if (interval > 1) return Math.floor(interval) + " hrs";
+            interval = seconds / 60;
+            if (interval > 1) return Math.floor(interval) + " mins";
+            return Math.floor(seconds) + " sec";
+        }
+
+        document.getElementById('configLogoFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if(!file) return;
+            
+            const status = document.getElementById('configLogoStatus');
+            const preview = document.getElementById('configLogoPreview');
+            
+            status.innerText = "Uploading...";
+            status.style.color = "var(--warning)";
+            
+            const formData = new FormData();
+            formData.append("image", file);
+            
+            fetch(`https://api.imgbb.com/1/upload?key=820eb9aa6a57f863045a52c1929efc9c`, {
+                method: "POST",
+                body: formData
+            }).then(res => res.json()).then(json => {
+                if(json.success) {
+                    preview.src = json.data.url;
+                    preview.style.display = 'block';
+                    status.innerText = "Saved!";
+                    status.style.color = "var(--success)";
+                    setTimeout(() => status.innerText = '', 3000);
+                    
+                    updateSystemConfigData('storeLogo', json.data.url);
+                } else {
+                    status.innerText = "Upload Failed.";
+                    status.style.color = "var(--danger)";
+                }
+            }).catch(() => {
+                status.innerText = "Network Error.";
+                status.style.color = "var(--danger)";
+            });
+        });
+
+        databaseRef.ref('settings').on('value', (snapshot) => {
+            if(snapshot.exists()) {
+                const conf = snapshot.val();
+                
+                if(document.getElementById('configBonusCoins')) document.getElementById('configBonusCoins').value = conf.signupBonus || 0;
+                if(document.getElementById('configDefaultTheme')) document.getElementById('configDefaultTheme').value = conf.defaultTheme || 'dark';
+                
+                if(conf.storeLogo && conf.storeLogo.trim() !== "") {
+                    document.getElementById('configLogoPreview').src = conf.storeLogo;
+                    document.getElementById('configLogoPreview').style.display = 'block';
+                }
+                
+                const adminListDiv = document.getElementById('configAdminListContainer');
+                if(conf.masterAdmins && Object.keys(conf.masterAdmins).length > 0 && adminListDiv) {
+                    let adminHtml = '';
+                    Object.keys(conf.masterAdmins).forEach(key => {
+                        let email = conf.masterAdmins[key];
+                        if (email !== 'sktausif771@gmail.com') {
+                            adminHtml += `
+                                <div class="app-check-item" style="justify-content:space-between; background: rgba(0,0,0,0.2);">
+                                    <label style="cursor:default; font-family:monospace; font-size:12px;"><i class="fas fa-key" style="color:var(--info); margin-right:6px;"></i> ${email}</label>
+                                    <button class=\"action-icon icon-trash\" style=\"width:30px; height:30px; font-size:12px; background:transparent; border:none; color:var(--text-dim); cursor:pointer; transition:0.3s;\" onmouseover=\"this.style.color='var(--danger)'\" onmouseout=\"this.style.color='var(--text-dim)'\" onclick=\"removeMasterAdminEmail('${key}')\"><i class=\"fas fa-times\"></i></button>
+                                </div>
+                            `;
+                        }
+                    });
+                    
+                    if(adminHtml === '') adminHtml = '<div style=\"text-align:center; font-size:11px; color:var(--text-dim); padding:10px;\">No external keys authorized.</div>';
+                    adminListDiv.innerHTML = adminHtml;
+                } else if(adminListDiv) {
+                    adminListDiv.innerHTML = '<div style=\"text-align:center; font-size:11px; color:var(--text-dim); padding:10px;\">No external keys authorized.</div>';
+                }
+            }
+        });
+
+        window.updateSystemConfigData = function(key, value) {
+            databaseRef.ref(`settings/${key}`).set(value).then(() => {
+                if(key !== 'storeLogo') { alert("Config Updated!"); }
+                console.log(`Config [${key}] updated to:`, value);
+            });
+        };
+
+        window.addNewMasterAdminEmail = function() {
+            const emailInput = document.getElementById('configNewAdminEmail');
+            const email = emailInput.value.trim().toLowerCase();
+            if(!email || !email.includes('@')) { alert('Invalid syntax for email string.'); return; }
+            
+            const safeKey = email.replace(/\\./g, ','); 
+            databaseRef.ref(`settings/masterAdmins/${safeKey}`).set(email).then(() => {
+                emailInput.value = '';
+            });
+        };
+
+        window.removeMasterAdminEmail = function(safeKey) {
+            if(confirm("Revoke operational clearance for this key?")) {
+                databaseRef.ref(`settings/masterAdmins/${safeKey}`).remove();
+            }
+        };
+
+        databaseRef.ref('users').on('value', (snapshot) => {
+            const container = document.getElementById('liveUsersTrackingContainer');
+
+            if (!snapshot.exists()) {
+                document.getElementById('statUsers').innerText = 0;
+                if(document.getElementById('statActiveToday')) document.getElementById('statActiveToday').innerText = 0;
+                container.innerHTML = `<div class=\"empty-state\"><i class=\"fas fa-server\"></i><p>DB Offline / Empty.</p></div>`;
+                return;
+            }
+
+            let usersArr = [];
+            let activeTodayCount = 0;
+            const oneDayMs = 24 * 60 * 60 * 1000;
+            const nowMs = Date.now();
+
+            snapshot.forEach(child => {
+                let u = child.val();
+                
+                if (!u.email || u.email.trim() === "" || u.email === "No Email") return; 
+
+                u.uid = child.key;
+                u.name = u.name && u.name.trim() !== "" ? u.name : "MVX User";
+                u.avatarUrl = u.avatarUrl || "https://via.placeholder.com/60/121212/00e676?text=USR";
+                u.sortTime = u.lastLogin || u.joinedAt || 0; 
+                
+                usersArr.push(u);
+
+                if(nowMs - u.sortTime < oneDayMs) {
+                    activeTodayCount++;
+                }
+            });
+
+            document.getElementById('statUsers').innerText = usersArr.length || 0;
+            if(document.getElementById('statActiveToday')) document.getElementById('statActiveToday').innerText = activeTodayCount;
+
+            if(usersArr.length === 0) {
+                container.innerHTML = `<div class=\"empty-state\"><i class=\"fas fa-server\"></i><p>Zero active user nodes.</p></div>`;
+                return;
+            }
+
+            usersArr.sort((a, b) => b.sortTime - a.sortTime);
+
+            let html = '';
+            usersArr.forEach(user => {
+                let timeString = timeSince(user.sortTime);
+                
+                let roleBadge = '';
+                if (user.email === 'sktausif771@gmail.com') {
+                    roleBadge = `<span style=\"background:var(--success); color:#000; font-size:9px; padding:2px 4px; border-radius:4px; margin-left:5px; font-weight:800; font-family:monospace;\">OWNER</span>`;
+                } else if (user.role === 'owner') {
+                    roleBadge = `<span style=\"background:var(--warning); color:#000; font-size:9px; padding:2px 4px; border-radius:4px; margin-left:5px; font-weight:800; font-family:monospace;\">ADMIN</span>`;
+                }
+
+                html += `
+                    <div class=\"item-card\">
+                        <img src=\"${user.avatarUrl}\" class=\"item-img zoomable-img\" onclick=\"openAdminLightbox('${user.avatarUrl}')\" onerror=\"this.src='https://via.placeholder.com/60/121212/00e676?text=USR'\">
+                        <div class=\"item-info\">
+                            <h3>${user.name} ${roleBadge}</h3>
+                            <p style=\"font-family:monospace; margin-bottom:4px;\">${user.email}</p>
+                            <span class=\"time-badge\"><i class=\"fas fa-satellite\"></i> Ping: ${timeString}</span>
+                        </div>
+                        <div class=\"item-actions\">
+                            <div class=\"dropdown\">
+                                <button class=\"dropdown-btn\"><i class=\"fas fa-bars\"></i></button>
+                                <div class=\"dropdown-content\">
+                                    <button class=\"dropdown-item\" onclick=\"openUserGiftModal('${user.uid}', '${user.name.replace(/'/g, "\\\\'")}', '${user.email}', '${user.avatarUrl}')\"><i class=\"fas fa-gift\" style=\"color:var(--gift);\"></i> Gift</button>
+                                    <button class=\"dropdown-item\" onclick=\"makeUserAdminProtocol('${user.uid}', '${user.email}')\"><i class=\"fas fa-user-shield\" style=\"color:var(--primary);\"></i> Add Admin</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        });
+
+        window.openUserGiftModal = function(uid, name, email, avatar) {
+            currentGiftTargetUid = uid;
+            currentGiftTargetName = name;
+            
+            document.getElementById('giftUserName').innerText = name;
+            document.getElementById('giftUserEmail').innerText = email;
+            document.getElementById('giftUserAvatar').src = avatar;
+            
+            document.getElementById('giftCoinsAmount').value = '';
+            document.getElementById('giftAppSelect').value = '';
+            
+            document.getElementById('userGiftModal').classList.add('active');
+        }
+
+        window.closeGiftModal = function() { document.getElementById('userGiftModal').classList.remove('active'); }
+
+        window.toggleDirectGiftUI = function(val) {
+            document.getElementById('giftCoinsUI').style.display = (val === 'coins') ? 'block' : 'none';
+            document.getElementById('giftAppUI').style.display = (val === 'premium_app') ? 'block' : 'none';
+        }
+
+        window.dispatchDirectGiftToUser = function() {
+            if(!currentGiftTargetUid) return;
+            
+            const giftType = document.getElementById('giftTypeSelector').value;
+            let pushNotiMessage = "";
+            let updates = {};
+
+            if(giftType === 'coins') {
+                const coinsAmt = parseInt(document.getElementById('giftCoinsAmount').value);
+                if(!coinsAmt || coinsAmt <= 0) { alert("Syntax error: Invalid integer amount."); return; }
+                
+                databaseRef.ref(`users/${currentGiftTargetUid}/coins`).once('value').then(snap => {
+                    const currentBal = parseInt(snap.val()) || 0;
+                    updates[`users/${currentGiftTargetUid}/coins`] = currentBal + coinsAmt;
+                    pushNotiMessage = `⚡ System override: Master allocated ${coinsAmt} Coins to your profile.`;
+                    executeGiftDatabaseUpdate(updates, pushNotiMessage);
+                });
+                return; 
+            } 
+            else if(giftType === 'premium_app') {
+                const appId = document.getElementById('giftAppSelect').value;
+                if(!appId) { alert("Target node missing. Select a package."); return; }
+                
+                let targetAppObj = storeAppsCacheForSelects.find(a => a.id === appId);
+                let appTitle = targetAppObj ? targetAppObj.appName : "a Premium App";
+
+                updates[`users/${currentGiftTargetUid}/unlocked_apps/${appId}`] = true;
+                updates[`users/${currentGiftTargetUid}/unlocked_passwords/${appId}`] = true;
+                
+                pushNotiMessage = `⚡ Security Clearance Granted: Access to '${appTitle}' authorized.`;
+                executeGiftDatabaseUpdate(updates, pushNotiMessage);
+            }
+        }
+
+        function executeGiftDatabaseUpdate(updatePayload, globalPushMsg) {
+            databaseRef.ref().update(updatePayload).then(() => {
+                const date = new Date();
+                const timeStr = date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) + " | " + date.toLocaleDateString();
+                
+                databaseRef.ref('system_broadcasts').push({
+                    title: "System Injection Protocol",
+                    message: globalPushMsg,
+                    type: "normal",
+                    timeString: timeStr,
+                    sender: "Core Server",
+                    link: "", 
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                });
+
+                alert("Injection procedure successful.");
+                closeGiftModal();
+            }).catch(err => alert("Protocol failure: " + err.message));
+        }
+
+        databaseRef.ref('store_apps').on('value', (snap) => { 
+            if(document.getElementById('statLiveApps')) document.getElementById('statLiveApps').innerText = snap.numChildren() || 0; 
+            
+            storeAppsCacheForSelects = [];
+            const vContainer = document.getElementById('voucherAppCheckboxContainer');
+            const nSelect = document.getElementById('nAppSelect');
+            const giftSelect = document.getElementById('giftAppSelect');
+            
+            if(!snap.exists()) {
+                if(vContainer) vContainer.innerHTML = '<div style=\"text-align:center; font-size:11px; color:var(--danger); padding:10px;\">Offline / No data blocks.</div>';
+                return;
+            }
+
+            let vHtml = '';
+            let nHtml = '<option value=\"\">-- No App Selected --</option>';
+            let giftHtml = '<option value=\"\">-- Select --</option>';
+
+            snap.forEach(child => {
+                let app = child.val();
+                app.id = child.key;
+                storeAppsCacheForSelects.push(app);
+
+                vHtml += `
+                    <div class=\"app-check-item\">
+                        <input type=\"checkbox\" class=\"v-app-checkbox\" value=\"${app.id}\" id=\"chk_${app.id}\">
+                        <label for=\"chk_${app.id}\">${app.appName} <span style=\"color:${app.category === 'paid' ? 'var(--warning)' : 'var(--success)'}; font-size:10px; margin-left:4px; font-family:monospace;\">[${app.category.toUpperCase()}]</span></label>
+                    </div>
+                `;
+                nHtml += `<option value=\"${app.id}\">${app.appName}</option>`;
+                if(app.category === 'paid') { giftHtml += `<option value=\"${app.id}\">${app.appName}</option>`; }
+            });
+
+            if(vContainer) vContainer.innerHTML = vHtml;
+            if(nSelect) nSelect.innerHTML = nHtml;
+            if(giftSelect) {
+                if(giftHtml === '<option value=\"\">-- Select --</option>') {
+                     giftSelect.innerHTML = '<option value=\"\">-- No Premium Apps --</option>';
+                } else {
+                     giftSelect.innerHTML = giftHtml;
+                }
+            }
+        });
+
+        databaseRef.ref('pending_apps').on('value', (snap) => { if(document.getElementById('statPendingApps')) document.getElementById('statPendingApps').innerText = snap.numChildren() || 0; });
+        databaseRef.ref('reports').on('value', (snap) => { if(document.getElementById('statReports')) document.getElementById('statReports').innerText = snap.numChildren() || 0; });
+
+        databaseRef.ref('pending_apps').on('value', (snapshot) => {
+            const container = document.getElementById('pendingContainerQueue');
+            if (!snapshot.exists()) {
+                container.innerHTML = `<div class=\"empty-state\"><i class=\"fas fa-check-double\" style=\"color:var(--success); opacity:1; font-size:30px;\"></i><p style=\"margin-top:10px;\">No pending apps.</p></div>`;
+                return;
+            }
+
+            let html = '';
+            snapshot.forEach((child) => {
+                const app = child.val();
+                let badgeHTML = '';
+                if(app.category === 'paid') {
+                    badgeHTML = `<span style=\"background:rgba(255,193,7,0.1); color:var(--warning); padding:2px 6px; border-radius:4px; font-size:9px; font-weight:800; font-family:monospace;\">PREMIUM</span>`;
+                } else if(app.category === 'locked') {
+                    badgeHTML = `<span style=\"background:rgba(255,61,0,0.1); color:var(--danger); padding:2px 6px; border-radius:4px; font-size:9px; font-weight:800; font-family:monospace;\">LOCKED</span>`;
+                } else {
+                    badgeHTML = `<span style=\"background:rgba(0,230,118,0.1); color:var(--success); padding:2px 6px; border-radius:4px; font-size:9px; font-weight:800; font-family:monospace;\">FREE</span>`;
+                }
+
+                html += `
+                    <div class=\"item-card\" style=\"border-left: 3px solid var(--warning);\">
+                        <img src=\"${app.logoUrl}\" class=\"item-img zoomable-img\" style=\"width:55px; height:55px;\" onclick=\"openAdminLightbox('${app.logoUrl}')\" onerror=\"this.src='https://via.placeholder.com/60/121212/00e676?text=APP'\">
+                        <div class=\"item-info\">
+                            <h3>${app.appName} <i class=\"fas fa-check-circle verified-tick\" style=\"color:var(--primary); font-size:12px;\"></i></h3>
+                            <p style=\"font-family:monospace; margin-bottom:4px; font-size:11px;\">Developer: <span style=\"color:#fff;\">${app.uploaderName}</span></p>
+                            ${badgeHTML}
+                        </div>
+                        <div class=\"item-actions\">
+                            <div class=\"dropdown\">
+                                <button class=\"dropdown-btn\"><i class=\"fas fa-bars\"></i></button>
+                                <div class=\"dropdown-content\">
+                                    <button class=\"dropdown-item\" onclick=\"approvePendingPackageNode('${child.key}')\"><i class=\"fas fa-check\" style=\"color:var(--success);\"></i> Approve</button>
+                                    <button class=\"dropdown-item\" onclick=\"deletePendingPackageNode('${child.key}')\"><i class=\"fas fa-trash-alt\" style=\"color:var(--danger);\"></i> Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        });
+
+        window.approvePendingPackageNode = function(key) {
+            if(confirm("Publish this app to the live store?")) {
+                databaseRef.ref(`pending_apps/${key}`).once('value').then(snap => {
+                    let appData = snap.val();
+                    appData.status = 'approved';
+                    appData.approvedAt = firebase.database.ServerValue.TIMESTAMP;
+                    databaseRef.ref(`store_apps/${key}`).set(appData).then(() => { 
+                        databaseRef.ref(`pending_apps/${key}`).remove(); 
+                        alert("App is now Live!");
+                    });
+                });
+            }
+        };
+
+        window.deletePendingPackageNode = function(key) {
+            if(confirm("Are you sure you want to delete this pending app?")) {
+                databaseRef.ref(`pending_apps/${key}`).remove();
+            }
+        };
+
+        databaseRef.ref('store_apps').on('value', (snapshot) => {
+            const warehouse = document.getElementById('liveWarehouseContainer');
+            if (!snapshot.exists()) {
+                warehouse.innerHTML = `<div class=\"empty-state\"><i class=\"fas fa-database\"></i><p>No active apps.</p></div>`;
+                return;
+            }
+            let html = ''; let appsArray = [];
+            snapshot.forEach((child) => { appsArray.push({id: child.key, ...child.val()}); });
+            appsArray.reverse().forEach((app) => {
+                let badgeCol = 'var(--success)';
+                if(app.category === 'paid') badgeCol = 'var(--warning)';
+                if(app.category === 'locked') badgeCol = 'var(--danger)';
+
+                html += `
+                    <div class=\"item-card\" style=\"border-left: 3px solid ${badgeCol};\">
+                        <img src=\"${app.logoUrl}\" class=\"item-img zoomable-img\" style=\"width:55px; height:55px;\" onclick=\"openAdminLightbox('${app.logoUrl}')\" onerror=\"this.src='https://via.placeholder.com/60/121212/00e676?text=LIVE'\">
+                        <div class=\"item-info\">
+                            <h3>${app.appName} <i class=\"fas fa-check-circle verified-tick\" style=\"color:var(--primary); font-size:12px;\"></i></h3>
+                            <p style=\"color:var(--primary); font-size:10px; font-family:monospace; margin-bottom:4px;\">Dev: ${app.developerName || app.uploaderName || "Unknown"}</p>
+                            <p style=\"font-family:monospace;\"><i class=\"fas fa-cloud-download-alt\" style=\"color:var(--text-dim); margin-right:4px;\"></i> ${app.downloads || 0} &nbsp;&nbsp;|&nbsp;&nbsp; <i class=\"fas fa-hdd\" style=\"color:var(--text-dim); margin-right:4px;\"></i> ${app.size}</p>
+                        </div>
+                        <div class=\"item-actions\">
+                            <div class=\"dropdown\">
+                                <button class=\"dropdown-btn\"><i class=\"fas fa-bars\"></i></button>
+                                <div class=\"dropdown-content\">
+                                    <button class=\"dropdown-item\" onclick=\"openMasterAppEdit('${app.id}')\"><i class=\"fas fa-edit\" style=\"color:var(--warning);\"></i> Edit</button>
+                                    <button class=\"dropdown-item\" onclick=\"window.open('details.html?id=${app.id}', '_blank')\"><i class=\"fas fa-eye\" style=\"color:var(--info);\"></i> Preview</button>
+                                    <button class=\"dropdown-item\" onclick=\"executeLiveAppWipeProtocol('${app.id}', '${app.appName}')\"><i class=\"fas fa-trash-alt\" style=\"color:var(--danger);\"></i> Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            warehouse.innerHTML = html;
+        });
+
+        // NEW TOGGLE ACCESS TYPE (Handling Paid and Locked)
+        window.toggleEditAccessType = function(val) {
+            document.getElementById('editCoinPriceWrapper').style.display = (val === 'paid') ? 'block' : 'none';
+            document.getElementById('editVideoLinkWrapper').style.display = (val === 'locked') ? 'block' : 'none';
+        };
+
+        // NEW DYNAMIC LINK ROW ADDER
+        window.addNewEditLinkRow = function(title = '', url = '') {
+            const container = document.getElementById('meDynamicLinksContainer');
+            const rows = container.querySelectorAll('.dynamic-link-row').length;
+            
+            if (rows >= 5) {
+                alert("Maximum 5 links allowed.");
+                return;
+            }
+            
+            const newRow = document.createElement('div');
+            newRow.className = 'dynamic-link-row';
+            newRow.style.cssText = 'display:flex; gap:10px; margin-top:12px;';
+            newRow.innerHTML = `
+                <input type=\"text\" class=\"glass-input ex-link-title\" placeholder=\"Title (e.g. Server 1)\" value=\"${title}\" style=\"margin-bottom:0; flex:1;\">
+                <input type=\"text\" class=\"glass-input ex-link-url\" placeholder=\"Download Link\" value=\"${url}\" style=\"margin-bottom:0; flex:2;\">
+            `;
+            container.appendChild(newRow);
+            
+            if (rows + 1 >= 5) {
+                document.getElementById('addMoreEditLinkBtn').style.display = 'none';
+            }
+        };
+
+        document.getElementById('meLogoFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if(!file) return;
+            
+            const status = document.getElementById('meLogoStatus');
+            const preview = document.getElementById('meLogoPreview');
+            const urlOutput = document.getElementById('meLogoUrl');
+            
+            status.innerText = "Uploading...";
+            status.style.color = "var(--warning)";
+            
+            const formData = new FormData();
+            formData.append("image", file);
+            
+            fetch(`https://api.imgbb.com/1/upload?key=820eb9aa6a57f863045a52c1929efc9c`, {
+                method: "POST",
+                body: formData
+            }).then(res => res.json()).then(json => {
+                if(json.success) {
+                    urlOutput.value = json.data.url;
+                    preview.src = json.data.url;
+                    status.innerText = "Uploaded!";
+                    status.style.color = "var(--success)";
+                    setTimeout(() => status.innerText = '', 3000);
+                } else {
+                    status.innerText = "Upload Failed.";
+                    status.style.color = "var(--danger)";
+                }
+            }).catch(() => {
+                status.innerText = "Network Error.";
+                status.style.color = "var(--danger)";
+            });
+        });
+
+        window.openMasterAppEdit = function(appId) {
+            databaseRef.ref(`store_apps/${appId}`).once('value').then(snap => {
+                if(!snap.exists()) return;
+                let app = snap.val();
+                
+                document.getElementById('meAppId').value = appId;
+                document.getElementById('meName').value = app.appName || "";
+                document.getElementById('meDev').value = app.developerName || app.uploaderName || "";
+                document.getElementById('meVer').value = app.version || "";
+                document.getElementById('meSize').value = app.size || "";
+                
+                document.getElementById('meCat').value = app.category || "free";
+                toggleEditAccessType(app.category || "free");
+                document.getElementById('meCoinPrice').value = app.coinPrice || 0;
+                document.getElementById('meVideoLink').value = app.videoLink || "";
+                
+                document.getElementById('meTrending').checked = app.isTrending || false;
+                
+                document.getElementById('meLogoUrl').value = app.logoUrl || "";
+                document.getElementById('meLogoPreview').src = app.logoUrl || "https://via.placeholder.com/50";
+                document.getElementById('meLogoFile').value = '';
+                document.getElementById('meLogoStatus').innerText = '';
+                
+                // Set Dynamic Links
+                const linkContainer = document.getElementById('meDynamicLinksContainer');
+                linkContainer.innerHTML = '';
+                document.getElementById('addMoreEditLinkBtn').style.display = 'inline-block';
+                
+                if (app.downloadUrl) {
+                    addNewEditLinkRow('Main Link', app.downloadUrl);
+                } else {
+                    addNewEditLinkRow('', '');
+                }
+                
+                if (app.extraLinks && Array.isArray(app.extraLinks)) {
+                    app.extraLinks.forEach(link => {
+                        addNewEditLinkRow(link.title, link.url);
+                    });
+                }
+                
+                document.getElementById('meDescription').value = app.description || "";
+                
+                document.getElementById('masterAppEditModal').classList.add('active');
+            });
+        };
+
+        window.submitMasterAppUpdate = function() {
+            let appId = document.getElementById('meAppId').value;
+            let name = document.getElementById('meName').value.trim();
+            
+            // Collect Links
+            let collectedLinks = [];
+            const container = document.getElementById('meDynamicLinksContainer');
+            const titles = container.querySelectorAll('.ex-link-title');
+            const urls = container.querySelectorAll('.ex-link-url');
+            let mainLink = "";
+
+            for(let i = 0; i < urls.length; i++) {
+                let tVal = titles[i].value.trim();
+                let uVal = urls[i].value.trim();
+                if(uVal !== "") {
+                    if(mainLink === "") mainLink = uVal; 
+                    collectedLinks.push({ title: tVal || `Link ${i + 1}`, url: uVal });
+                }
+            }
+            
+            if(!name || mainLink === "") { alert("App Title and at least one Download Link are required."); return; }
+            
+            let updates = {
+                appName: name,
+                developerName: document.getElementById('meDev').value.trim(),
+                version: document.getElementById('meVer').value.trim(),
+                size: document.getElementById('meSize').value.trim(),
+                category: document.getElementById('meCat').value,
+                coinPrice: parseInt(document.getElementById('meCoinPrice').value) || 0,
+                videoLink: document.getElementById('meVideoLink').value.trim(),
+                isTrending: document.getElementById('meTrending').checked,
+                logoUrl: document.getElementById('meLogoUrl').value.trim() || "https://via.placeholder.com/150",
+                downloadUrl: mainLink, 
+                extraLinks: collectedLinks,
+                description: document.getElementById('meDescription').value.trim()
+            };
+            
+            // Removing old password fields to ensure clean database
+            updates.zipPassword = null;
+            updates.getPasswordLink = null;
+            
+            databaseRef.ref(`store_apps/${appId}`).update(updates).then(() => {
+                alert("App updated successfully!");
+                document.getElementById('masterAppEditModal').classList.remove('active');
+            });
+        };
+
+        window.executeLiveAppWipeProtocol = function(key, name) {
+            if(confirm(`Are you sure you want to delete [${name}] permanently?`)) {
+                databaseRef.ref(`store_apps/${key}`).remove();
+            }
+        };
+
+        window.toggleVoucherRewardInterface = function(val) {
+            document.getElementById('voucherCoinUI').style.display = (val === 'coins') ? 'block' : 'none';
+            document.getElementById('voucherAppUI').style.display = (val === 'premium_bypass') ? 'block' : 'none';
+        }
+
+        window.toggleAllVoucherApps = function(isChecked) {
+            document.querySelectorAll('.v-app-checkbox').forEach(cb => cb.checked = isChecked);
+        }
+
+        window.executeVoucherMintingProtocolToServer = function() {
+            const code = document.getElementById('vCode').value.trim().toUpperCase();
+            const type = document.getElementById('vType').value;
+            const max = parseInt(document.getElementById('vMaxClaims').value) || 1;
+            
+            let finalRewardValue = "";
+
+            if (!code) { alert("Please enter a redeem code."); return; }
+
+            if (type === 'coins') {
+                finalRewardValue = document.getElementById('vValueCoins').value.trim();
+                if(!finalRewardValue || finalRewardValue <= 0) { alert("Please enter coin amount."); return; }
+            } else {
+                if (document.getElementById('vCheckAllApps').checked) {
+                    finalRewardValue = "ALL_APPS";
+                } else {
+                    let checkedList = [];
+                    document.querySelectorAll('.v-app-checkbox:checked').forEach(cb => checkedList.push(cb.value));
+                    if (checkedList.length === 0) { alert("Please select an app."); return; }
+                    finalRewardValue = checkedList.join(',');
+                }
+            }
+
+            databaseRef.ref('redeem_codes/' + code).set({
+                codeString: code, 
+                rewardType: type, 
+                maxClaims: max, 
+                currentClaims: 0, 
+                rewardValue: finalRewardValue, 
+                mintedAt: firebase.database.ServerValue.TIMESTAMP
+            }).then(() => {
+                alert(`Redeem Code [${code}] created successfully.`);
+                document.getElementById('vCode').value = ''; 
+                document.getElementById('vValueCoins').value = '';
+                document.getElementById('vCheckAllApps').checked = false;
+                toggleAllVoucherApps(false);
+            });
+        };
+
+        databaseRef.ref('redeem_codes').on('value', (snapshot) => {
+            const logs = document.getElementById('liveVouchersTrackingContainer');
+            if(!snapshot.exists()) { logs.innerHTML = `<div class=\"empty-state\"><i class=\"fas fa-ticket-alt\"></i><p>No active codes.</p></div>`; return; }
+            let html = '';
+            snapshot.forEach(child => {
+                const voucher = child.val();
+                let shortVal = voucher.rewardValue;
+                if(shortVal.length > 20) shortVal = shortVal.substring(0, 20) + '...'; 
+
+                const usagePercent = Math.min(100, Math.round((voucher.currentClaims / voucher.maxClaims) * 100));
+                let usageColor = "var(--success)";
+                if(usagePercent > 70) usageColor = "var(--warning)";
+                if(usagePercent >= 100) usageColor = "var(--danger)";
+
+                html += `
+                    <div class=\"item-card\" style=\"border-left: 3px solid var(--gift);\">
+                        <div class=\"item-info\">
+                            <h3 style=\"font-family:'Orbitron', sans-serif; color:var(--gift); font-size:15px; letter-spacing:1px;\">${voucher.codeString}</h3>
+                            <p style=\"margin-bottom:6px; font-weight:600; font-family:monospace;\"><span style=\"color:#fff;\">Type:</span> ${voucher.rewardType.replace('_', ' ').toUpperCase()} <span style=\"opacity:0.5;\">|</span> <span style=\"color:var(--info);\">${shortVal}</span></p>
+                            <div style=\"display:flex; align-items:center; gap:8px;\">
+                                <div style=\"flex:1; height:4px; background:rgba(255,255,255,0.1); border-radius:10px; overflow:hidden;\">
+                                    <div style=\"height:100%; width:${usagePercent}%; background:${usageColor}; border-radius:10px;\"></div>
+                                </div>
+                                <span style=\"font-size:10px; font-family:monospace; color:${usageColor}; font-weight:bold;\">${voucher.currentClaims}/${voucher.maxClaims} Used</span>
+                            </div>
+                        </div>
+                        <div class=\"item-actions\">
+                            <div class=\"dropdown\">
+                                <button class=\"dropdown-btn\"><i class=\"fas fa-bars\"></i></button>
+                                <div class=\"dropdown-content\">
+                                    <button class=\"dropdown-item\" onclick=\"dropActiveVoucherFromNetwork('${child.key}')\"><i class=\"fas fa-trash-alt\" style=\"color:var(--danger);\"></i> Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            logs.innerHTML = html;
+        });
+        window.dropActiveVoucherFromNetwork = function(key) { if(confirm("Are you sure you want to delete this code?")) databaseRef.ref(`redeem_codes/${key}`).remove(); };
+
+        window.banReportedApp = function(appId, reportId) {
+            if(confirm("Are you sure you want to permanently Ban/Delete this app?")) {
+                databaseRef.ref(`store_apps/${appId}`).remove().then(() => {
+                    databaseRef.ref(`reports/${reportId}`).remove();
+                    alert("App Banned and Report Cleared!");
+                });
+            }
+        };
+
+        databaseRef.ref('reports').on('value', (snapshot) => {
+            const reportsBox = document.getElementById('userReportsTrackingContainer');
+            if (!snapshot.exists()) {
+                reportsBox.innerHTML = `<div class=\"empty-state\"><i class=\"fas fa-shield-check\" style=\"color:var(--success); opacity:1; font-size:30px;\"></i><p style=\"margin-top:10px;\">No reports found.</p></div>`;
+                return;
+            }
+            let html = ''; let reportsArr = [];
+            snapshot.forEach(child => reportsArr.push({id: child.key, ...child.val()}));
+            reportsArr.reverse().forEach(rpt => {
+                html += `
+                    <div class=\"item-card report-card\" style=\"background: linear-gradient(to right, rgba(255,61,0,0.05), transparent);\">
+                        <div class=\"item-info\">
+                            <h3 style=\"color:var(--danger); font-size:14px; margin-bottom:6px;\"><i class=\"fas fa-exclamation-triangle\" style=\"margin-right:4px;\"></i> APP: ${rpt.appName}</h3>
+                            <p style=\"font-family:monospace; margin-bottom:4px; font-size:11px;\">Reported By: <span style=\"color:#fff;\">${rpt.reportedByName}</span></p>
+                            <span class=\"badge-danger\">${rpt.violationReason}</span>
+                        </div>
+                        <div class=\"item-actions\">
+                            <div class=\"dropdown\">
+                                <button class=\"dropdown-btn\"><i class=\"fas fa-bars\"></i></button>
+                                <div class=\"dropdown-content\">
+                                    <button class=\"dropdown-item\" onclick=\"window.open('details.html?id=${rpt.appId}', '_blank')\"><i class=\"fas fa-eye\" style=\"color:var(--info);\"></i> Preview App</button>
+                                    <button class=\"dropdown-item\" onclick=\"dropReportNodeFromRegistry('${rpt.id}')\"><i class=\"fas fa-times\" style=\"color:var(--warning);\"></i> Cross Report</button>
+                                    <button class=\"dropdown-item\" onclick=\"banReportedApp('${rpt.appId}', '${rpt.id}')\"><i class=\"fas fa-ban\" style=\"color:var(--danger);\"></i> Ban App</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            reportsBox.innerHTML = html;
+        });
+        window.dropReportNodeFromRegistry = function(key) { if(confirm("Dismiss this report?")) databaseRef.ref(`reports/${key}`).remove(); };
+
+        window.toggleNotificationType = function(val) {
+            document.getElementById('nAppContainer').style.display = (val === 'app') ? 'block' : 'none';
+            document.getElementById('nLinkContainer').style.display = (val === 'link') ? 'block' : 'none';
+        }
+
+        window.dispatchManualSystemNotice = function() {
+            const title = document.getElementById('nTitle').value.trim();
+            const msg = document.getElementById('nMessage').value.trim();
+            const notiType = document.getElementById('nType').value;
+            const appId = document.getElementById('nAppSelect').value;
+            const customLink = document.getElementById('nLink').value.trim();
+
+            if(!title || !msg) { alert("Title and Message are required."); return; }
+
+            let finalLink = "";
+            if (notiType === 'app') {
+                if(appId !== "") { finalLink = `details.html?id=${appId}`; }
+            } else {
+                finalLink = customLink;
+            }
+
+            const date = new Date();
+            const timeStr = date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) + " | " + date.toLocaleDateString();
+
+            databaseRef.ref('system_broadcasts').push({
+                title: title,
+                message: msg,
+                type: "alert",
+                timeString: timeStr,
+                sender: "System Override",
+                link: finalLink || "", 
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            }).then(() => {
+                alert("Notification Sent Successfully!");
+                document.getElementById('nTitle').value = '';
+                document.getElementById('nMessage').value = '';
+                document.getElementById('nAppSelect').value = '';
+                document.getElementById('nLink').value = '';
+            });
+        };
+
+        databaseRef.ref('system_broadcasts').on('value', (snapshot) => {
+            const noticesBox = document.getElementById('globalNoticesTrackingContainer');
+            if (!snapshot.exists()) {
+                noticesBox.innerHTML = `<div class=\"empty-state\"><i class=\"fas fa-satellite\"></i><p>No notifications.</p></div>`;
+                return;
+            }
+            let html = ''; let noticesArr = [];
+            snapshot.forEach(child => noticesArr.push({id: child.key, ...child.val()}));
+            noticesArr.reverse().forEach(note => {
+                let linkHtml = note.link ? `<a href=\"${note.link}\" target=\"_blank\" style=\"color:var(--info); font-size:11px; font-weight:bold; text-decoration:none; display:inline-block; margin-top:6px; font-family:monospace;\"><i class=\"fas fa-link\"></i> View Link</a>` : '';
+                let borderCol = note.type === 'alert' ? 'var(--danger)' : 'var(--info)';
+                
+                html += `
+                    <div class=\"item-card\" style=\"border-left: 3px solid ${borderCol};\">
+                        <div class=\"item-info\">
+                            <h3 style=\"color:#fff; font-size:14px; margin-bottom:6px;\">${note.title}</h3>
+                            <p style=\"font-size:12px; line-height:1.4; color:#ccc;\">${note.message}</p>
+                            ${linkHtml}
+                            <p style=\"font-size:10px; color:var(--text-dim); margin-top:8px; font-family:monospace;\"><i class=\"fas fa-clock\"></i> ${note.timeString}</p>
+                        </div>
+                        <div class=\"item-actions\">
+                            <div class=\"dropdown\">
+                                <button class=\"dropdown-btn\"><i class=\"fas fa-bars\"></i></button>
+                                <div class=\"dropdown-content\">
+                                    <button class=\"dropdown-item\" onclick=\"dropBroadcastNoticeFromLiveDatabase('${note.id}')\"><i class=\"fas fa-trash-alt\" style=\"color:var(--danger);\"></i> Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            noticesBox.innerHTML = html;
+        });
+        window.dropBroadcastNoticeFromLiveDatabase = function(key) { if(confirm("Are you sure you want to delete this notification?")) databaseRef.ref(`system_broadcasts/${key}`).remove(); };
+
+    </script>
+</body>
+</html>

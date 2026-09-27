@@ -1,1488 +1,414 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en" data-theme="dark">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-
-<title>Deen Routine - Private Timer</title>
-
-<!-- Google Identity Services -->
-<script src="https://accounts.google.com/gsi/client" async defer></script>
-
-<style>
-*{
-    box-sizing:border-box;
-    margin:0;
-    padding:0;
-}
-
-:root{
-    --bg:#f4f7f5;
-    --card:#ffffff;
-    --text:#17231c;
-    --muted:#718078;
-    --primary:#16834a;
-    --primary2:#0c6738;
-    --border:#e2ebe5;
-    --danger:#dc3545;
-    --warning:#f39c12;
-    --shadow:0 12px 35px rgba(18,55,35,.09);
-}
-
-body.dark{
-    --bg:#0d1511;
-    --card:#17221c;
-    --text:#edf7f0;
-    --muted:#9aaa9f;
-    --border:#29372f;
-    --shadow:0 12px 35px rgba(0,0,0,.30);
-}
-
-body{
-    min-height:100vh;
-    font-family:
-        system-ui,
-        -apple-system,
-        BlinkMacSystemFont,
-        "Segoe UI",
-        sans-serif;
-    background:
-        radial-gradient(circle at top left,rgba(22,131,74,.12),transparent 30%),
-        var(--bg);
-    color:var(--text);
-    transition:.3s;
-}
-
-.container{
-    width:min(620px,100%);
-    margin:auto;
-    padding:18px;
-}
-
-/* HEADER */
-
-.header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:20px;
-}
-
-.brand{
-    display:flex;
-    align-items:center;
-    gap:12px;
-}
-
-.logo{
-    width:48px;
-    height:48px;
-    border-radius:15px;
-    background:linear-gradient(135deg,var(--primary),#38b873);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    color:white;
-    font-size:23px;
-    box-shadow:0 8px 20px rgba(22,131,74,.25);
-}
-
-.brand h1{
-    font-size:21px;
-}
-
-.brand p{
-    color:var(--muted);
-    font-size:12px;
-    margin-top:2px;
-}
-
-.icon-btn{
-    border:1px solid var(--border);
-    background:var(--card);
-    color:var(--text);
-    width:44px;
-    height:44px;
-    border-radius:13px;
-    cursor:pointer;
-    font-size:19px;
-}
-
-/* LOGIN */
-
-.login-card{
-    background:var(--card);
-    border:1px solid var(--border);
-    border-radius:24px;
-    padding:25px;
-    box-shadow:var(--shadow);
-    text-align:center;
-    margin-bottom:18px;
-}
-
-.login-icon{
-    width:70px;
-    height:70px;
-    margin:auto;
-    border-radius:22px;
-    background:#eef8f2;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:31px;
-}
-
-body.dark .login-icon{
-    background:#203328;
-}
-
-.login-card h2{
-    margin-top:15px;
-    font-size:20px;
-}
-
-.login-card p{
-    color:var(--muted);
-    line-height:1.6;
-    font-size:14px;
-    margin:8px 0 18px;
-}
-
-.google-wrap{
-    display:flex;
-    justify-content:center;
-}
-
-/* CHECKING */
-
-.checking{
-    display:none;
-    background:var(--card);
-    border:1px solid var(--border);
-    border-radius:24px;
-    padding:35px 20px;
-    text-align:center;
-    box-shadow:var(--shadow);
-}
-
-.spinner{
-    width:54px;
-    height:54px;
-    margin:0 auto 17px;
-    border:5px solid #dcebe2;
-    border-top-color:var(--primary);
-    border-radius:50%;
-    animation:spin 1s linear infinite;
-}
-
-@keyframes spin{
-    to{transform:rotate(360deg)}
-}
-
-/* APP */
-
-#app{
-    display:none;
-}
-
-/* ACCOUNT */
-
-.account{
-    background:linear-gradient(135deg,#126b3d,#1d9657);
-    color:white;
-    border-radius:24px;
-    padding:18px;
-    display:flex;
-    align-items:center;
-    gap:13px;
-    box-shadow:0 12px 30px rgba(18,107,61,.22);
-    margin-bottom:17px;
-}
-
-.avatar{
-    width:51px;
-    height:51px;
-    border-radius:50%;
-    background:rgba(255,255,255,.18);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:22px;
-    font-weight:700;
-}
-
-.account-info{
-    min-width:0;
-    flex:1;
-}
-
-.account-info strong{
-    display:block;
-    white-space:nowrap;
-    overflow:hidden;
-    text-overflow:ellipsis;
-}
-
-.account-info span{
-    display:block;
-    opacity:.8;
-    font-size:12px;
-    margin-top:3px;
-}
-
-.logout{
-    border:1px solid rgba(255,255,255,.25);
-    color:white;
-    background:rgba(255,255,255,.12);
-    border-radius:10px;
-    padding:9px 11px;
-    cursor:pointer;
-}
-
-/* MAIN TIMER */
-
-.timer-card{
-    background:var(--card);
-    border:1px solid var(--border);
-    border-radius:27px;
-    padding:25px 20px;
-    box-shadow:var(--shadow);
-    text-align:center;
-    margin-bottom:17px;
-}
-
-.badge{
-    display:inline-flex;
-    padding:6px 12px;
-    border-radius:30px;
-    background:#e9f7ef;
-    color:var(--primary);
-    font-size:12px;
-    font-weight:700;
-}
-
-body.dark .badge{
-    background:#203c2c;
-}
-
-.timer-title{
-    font-size:22px;
-    margin:13px 0 5px;
-}
-
-.subtitle{
-    color:var(--muted);
-    font-size:13px;
-}
-
-.countdown{
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:8px;
-    margin:22px 0;
-}
-
-.time-box{
-    background:var(--bg);
-    border-radius:16px;
-    padding:15px 5px;
-    border:1px solid var(--border);
-}
-
-.time-box strong{
-    display:block;
-    font-size:26px;
-    line-height:1;
-}
-
-.time-box span{
-    display:block;
-    color:var(--muted);
-    font-size:11px;
-    margin-top:6px;
-}
-
-.progress{
-    height:10px;
-    background:var(--border);
-    border-radius:20px;
-    overflow:hidden;
-    margin-top:17px;
-}
-
-.progress-bar{
-    width:0%;
-    height:100%;
-    background:linear-gradient(90deg,var(--primary),#55c889);
-    border-radius:20px;
-    transition:.5s;
-}
-
-.progress-text{
-    display:flex;
-    justify-content:space-between;
-    color:var(--muted);
-    font-size:12px;
-    margin-top:8px;
-}
-
-/* BUTTONS */
-
-.buttons{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:10px;
-    margin-top:20px;
-}
-
-button{
-    font-family:inherit;
-}
-
-.primary{
-    border:0;
-    background:var(--primary);
-    color:white;
-    border-radius:13px;
-    padding:13px;
-    font-weight:700;
-    cursor:pointer;
-}
-
-.primary:hover{
-    background:var(--primary2);
-}
-
-.secondary{
-    border:1px solid var(--border);
-    background:var(--bg);
-    color:var(--text);
-    border-radius:13px;
-    padding:13px;
-    font-weight:700;
-    cursor:pointer;
-}
-
-/* INFO */
-
-.info-card{
-    background:var(--card);
-    border:1px solid var(--border);
-    border-radius:22px;
-    padding:18px;
-    box-shadow:var(--shadow);
-    margin-bottom:17px;
-}
-
-.info-title{
-    font-size:16px;
-    font-weight:700;
-    margin-bottom:14px;
-}
-
-.info-row{
-    display:flex;
-    justify-content:space-between;
-    gap:15px;
-    padding:11px 0;
-    border-bottom:1px solid var(--border);
-    font-size:13px;
-}
-
-.info-row:last-child{
-    border-bottom:0;
-}
-
-.info-row span:first-child{
-    color:var(--muted);
-}
-
-/* REDUCTION */
-
-.reduce-card{
-    background:var(--card);
-    border:1px solid var(--border);
-    border-radius:22px;
-    padding:18px;
-    box-shadow:var(--shadow);
-    margin-bottom:17px;
-}
-
-.reduce-card h3{
-    font-size:16px;
-}
-
-.reduce-card p{
-    color:var(--muted);
-    font-size:12px;
-    line-height:1.6;
-    margin:7px 0 13px;
-}
-
-.reduce-control{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:10px;
-}
-
-.reduce-btn{
-    border:0;
-    background:#f1a126;
-    color:white;
-    border-radius:13px;
-    padding:13px;
-    font-weight:700;
-    cursor:pointer;
-}
-
-.reduce-count{
-    background:var(--bg);
-    border:1px solid var(--border);
-    border-radius:13px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-weight:700;
-}
-
-/* MODAL */
-
-.modal{
-    display:none;
-    position:fixed;
-    inset:0;
-    background:rgba(0,0,0,.55);
-    z-index:100;
-    align-items:center;
-    justify-content:center;
-    padding:20px;
-}
-
-.modal-box{
-    width:min(430px,100%);
-    background:var(--card);
-    color:var(--text);
-    border-radius:24px;
-    padding:23px;
-    box-shadow:0 20px 60px rgba(0,0,0,.25);
-}
-
-.modal-box h3{
-    margin-bottom:8px;
-}
-
-.modal-box p{
-    color:var(--muted);
-    font-size:13px;
-    line-height:1.6;
-    margin-bottom:18px;
-}
-
-.modal-actions{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:10px;
-}
-
-.hidden{
-    display:none!important;
-}
-
-.footer{
-    text-align:center;
-    color:var(--muted);
-    font-size:11px;
-    padding:10px 0 25px;
-}
-
-@media(max-width:400px){
-    .countdown{
-        gap:5px;
-    }
-
-    .time-box strong{
-        font-size:22px;
-    }
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#121212">
+    <title>MVX STORE | Play Store Edition V5.6</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .dashboard-tab {
+            transition: all 0.3s ease;
+        }
+        .dashboard-tab:hover {
+            background: rgba(0, 230, 184, 0.05) !important;
+        }
+        
+        /* GMAIL STYLE LOGIN CARD */
+        .google-login-card {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .google-login-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 5px 20px rgba(0, 230, 184, 0.15);
+            transform: translateY(-2px);
+        }
+        .g-logo-container {
+            width: 65px;
+            height: 65px;
+            background: #ffffff;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            flex-shrink: 0;
+        }
+        .g-text-container {
+            flex: 1;
+        }
+        .g-text-container h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 24px;
+            color: #ffffff;
+            margin-bottom: 5px;
+            letter-spacing: 1px;
+            font-weight: 800;
+        }
+        .g-text-container p {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 500;
+        }
+        .g-arrow {
+            color: var(--text-secondary);
+            font-size: 18px;
+            transition: color 0.3s;
+        }
+        .google-login-card:hover .g-arrow {
+            color: var(--primary);
+        }
+    </style>
 </head>
-
 <body>
 
-<div class="container">
-
-    <!-- HEADER -->
-    <div class="header">
-
-        <div class="brand">
-
-            <div class="logo">☪</div>
-
-            <div>
-                <h1>Deen Routine</h1>
-                <p>Private Routine Tracker</p>
+    <header class="play-top-nav" id="globalHeader">
+        <div class="top-brand" onclick="switchTab('mod_app', document.getElementById('defaultTabBtn'))">
+            <img src="https://via.placeholder.com/40/121212/00e6b8?text=MVX" alt="Store Logo" class="nav-logo" id="mainStoreLogo">
+            <span class="brand-text" id="lblStoreTitle">MVX STORE</span>
+        </div>
+        <div class="top-actions">
+            <div class="noti-icon-box" onclick="openNotificationCenter()">
+                <i class="fas fa-bell noti-icon"></i>
+                <div class="noti-badge" id="notiAlert"></div>
             </div>
+            
+            <div id="topAuthArea" style="display: flex; align-items: center;">
+                <div id="topLoginBtn" onclick="window.location.href='login.html'" style="color: var(--primary); font-family: 'Orbitron', sans-serif; font-size: 13px; font-weight: 800; cursor: pointer; padding: 6px 12px; border: 1px solid var(--primary); border-radius: 8px; display: none;">LOGIN</div>
+                
+                <img src="" alt="User Profile" class="top-profile-pic" id="topProfileBtn" 
+                     style="display: none;"
+                     onclick="openMyUploadsIfAdmin()">
+            </div>
+        </div>
+    </header>
 
+    <main class="play-main-content" id="mainStoreFeed">
+        
+        <div class="play-categories">
+            <button class="cat-chip active" id="btnCatAll" data-filter="all">All</button>
+            <button class="cat-chip" id="btnCatTrending" data-filter="trending">Trending</button>
+            <button class="cat-chip" id="btnCatPremium" data-filter="premium">Premium</button>
         </div>
 
-        <button class="icon-btn" id="themeBtn">☾</button>
-
-    </div>
-
-
-    <!-- LOGIN -->
-    <section class="login-card" id="loginCard">
-
-        <div class="login-icon">🔐</div>
-
-        <h2>Private Routine</h2>
-
-        <p>
-            আপনার Google Account দিয়ে সাইন ইন করুন।
-            আপনার routine data এই website-এর storage-এ
-            আপনার account-এর জন্য আলাদাভাবে সংরক্ষিত থাকবে।
-        </p>
-
-        <div class="google-wrap">
-
-            <!--
-                YOUR_GOOGLE_CLIENT_ID
-                এখানে নিজের Google OAuth Client ID বসাতে হবে।
-            -->
-
-            <div
-                id="g_id_onload"
-                data-client_id="YOUR_GOOGLE_CLIENT_ID"
-                data-callback="handleGoogleLogin"
-                data-auto_prompt="false">
+        <h2 class="play-section-title" id="feedSectionTitle">Apps & Files <i class="fas fa-arrow-right" style="font-size:12px; color:var(--text-secondary);"></i></h2>
+        
+        <div class="play-app-grid" id="storeAppGrid">
+            <div style="text-align:center; padding: 50px; grid-column: 1/-1;">
+                <i class="fas fa-spinner fa-spin" style="font-size:32px; color:var(--primary);"></i>
+                <p style="margin-top:15px; color:var(--text-secondary); font-weight:500;" id="lblLoadingStore">Loading Database...</p>
             </div>
-
-            <div
-                class="g_id_signin"
-                data-type="standard"
-                data-size="large"
-                data-theme="outline"
-                data-text="signin_with"
-                data-shape="rectangular">
-            </div>
-
         </div>
-
-    </section>
-
-
-    <!-- CHECKING -->
-    <section class="checking" id="checking">
-
-        <div class="spinner"></div>
-
-        <h2>Account Checking...</h2>
-
-        <p style="color:var(--muted);margin-top:8px">
-            আপনার saved routine data খোঁজা হচ্ছে
-        </p>
-
-        <p id="checkingTimer"
-           style="margin-top:12px;font-weight:700;color:var(--primary)">
-            3s
-        </p>
-
-    </section>
-
-
-    <!-- APP -->
-    <main id="app">
-
-        <!-- ACCOUNT -->
-        <section class="account">
-
-            <div class="avatar" id="avatar">U</div>
-
-            <div class="account-info">
-
-                <strong id="userName">
-                    User
-                </strong>
-
-                <span id="userEmail">
-                    account@example.com
-                </span>
-
-            </div>
-
-            <button class="logout" onclick="logout()">
-                Logout
-            </button>
-
-        </section>
-
-
-        <!-- TIMER -->
-        <section class="timer-card">
-
-            <span class="badge">
-                PRIVATE 40 DAYS
-            </span>
-
-            <h2 class="timer-title">
-                ৪০ দিনের রুটিন
-            </h2>
-
-            <p class="subtitle">
-                আপনার ব্যক্তিগত routine countdown
-            </p>
-
-
-            <div class="countdown">
-
-                <div class="time-box">
-                    <strong id="days">40</strong>
-                    <span>দিন</span>
-                </div>
-
-                <div class="time-box">
-                    <strong id="hours">00</strong>
-                    <span>ঘণ্টা</span>
-                </div>
-
-                <div class="time-box">
-                    <strong id="minutes">00</strong>
-                    <span>মিনিট</span>
-                </div>
-
-            </div>
-
-
-            <div class="progress">
-
-                <div
-                    class="progress-bar"
-                    id="progressBar">
-                </div>
-
-            </div>
-
-            <div class="progress-text">
-
-                <span id="elapsedText">
-                    0 দিন হয়েছে
-                </span>
-
-                <span id="remainingText">
-                    40 দিন বাকি
-                </span>
-
-            </div>
-
-
-            <div class="buttons">
-
-                <button
-                    class="primary"
-                    onclick="openResetModal()">
-                    ↻ Reset
-                </button>
-
-                <button
-                    class="secondary"
-                    onclick="openReduceModal()">
-                    − কমান
-                </button>
-
-            </div>
-
-        </section>
-
-
-        <!-- REDUCTION -->
-        <section class="reduce-card">
-
-            <h3>
-                ⏱️ Timer Adjustment
-            </h3>
-
-            <p>
-                সর্বোচ্চ ৪০ দিন রাখা যাবে।
-                প্রয়োজন হলে timer কমানো যাবে।
-                মোট সর্বোচ্চ ৩ বার কমানো যাবে।
-            </p>
-
-            <div class="reduce-control">
-
-                <button
-                    class="reduce-btn"
-                    onclick="reduceTimer()">
-                    ১ দিন কমান
-                </button>
-
-                <div
-                    class="reduce-count"
-                    id="reduceCount">
-                    0 / 3 ব্যবহার হয়েছে
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <!-- ACCOUNT DATA -->
-        <section class="info-card">
-
-            <div class="info-title">
-                📊 Routine Information
-            </div>
-
-            <div class="info-row">
-
-                <span>বর্তমান Target</span>
-
-                <strong id="targetInfo">
-                    40 দিন
-                </strong>
-
-            </div>
-
-            <div class="info-row">
-
-                <span>শুরু হয়েছে</span>
-
-                <strong id="startInfo">
-                    —
-                </strong>
-
-            </div>
-
-            <div class="info-row">
-
-                <span>শেষ হবে</span>
-
-                <strong id="endInfo">
-                    —
-                </strong>
-
-            </div>
-
-            <div class="info-row">
-
-                <span>Reduction</span>
-
-                <strong id="reductionInfo">
-                    0 / 3
-                </strong>
-
-            </div>
-
-        </section>
-
-
-        <div class="footer">
-            Deen Routine • Private data is stored separately per signed-in account
-        </div>
-
     </main>
 
-</div>
+    <main class="play-main-content" id="searchTabContent" style="display: none;">
+        <h2 class="play-section-title" id="lblSearchTitle">Search</h2>
+        <div style="position: relative; margin-bottom: 25px;">
+            <input type="text" id="storeSearchInput" class="play-input" placeholder="Search apps, mods or tags..." style="padding-left: 50px; margin-bottom: 0;">
+            <i class="fas fa-search" style="position: absolute; top: 18px; left: 20px; color: var(--text-secondary); font-size: 18px;"></i>
+        </div>
+        
+        <div class="play-app-grid" id="searchResultGrid">
+            <div style="text-align: center; padding: 40px; grid-column: 1/-1; color: var(--text-secondary);" id="lblSearchPrompt">
+                <i class="fas fa-search-plus" style="font-size: 40px; margin-bottom: 15px; color: var(--border-color);"></i>
+                <h3>Type any keyword to search</h3>
+            </div>
+        </div>
+    </main>
 
+    <main class="play-main-content" id="notificationTabContent" style="display: none;">
+        <div class="play-section-title">
+            <h2 id="lblNotiTitle"><i class="fas fa-bell" style="color: var(--primary);"></i> Notifications</h2>
+            <button class="cat-chip" onclick="clearLocalNotifications()" style="padding: 5px 12px; font-size: 11px;" id="btnClearScreen">Clear</button>
+        </div>
+        <div class="noti-container" id="notificationInboxDisplay">
+            <div class="noti-card">
+                <div class="noti-header">
+                    <span class="noti-title">System Alert</span>
+                    <span class="noti-time">Just Now</span>
+                </div>
+                <p class="noti-msg">Notification box is empty.</p>
+            </div>
+        </div>
+    </main>
 
-<!-- RESET MODAL -->
-
-<div class="modal" id="resetModal">
-
-    <div class="modal-box">
-
-        <h3>Reset Timer?</h3>
-
-        <p>
-            ৪০ দিন পূর্ণ না হলেও আপনি timer reset করতে পারবেন।
-            Reset করলে নতুন করে countdown শুরু হবে।
-        </p>
-
-        <div class="modal-actions">
-
-            <button
-                class="secondary"
-                onclick="closeModals()">
-                Cancel
-            </button>
-
-            <button
-                class="primary"
-                onclick="resetTimer()">
-                Reset Now
-            </button>
-
+    <main class="play-main-content" id="youTabContent" style="display: none;">
+        
+        <!-- LOGGED IN PROFILE VIEW -->
+        <div class="you-header" id="loggedInProfileView" style="display: none; align-items: center; gap: 20px; padding: 20px; background: var(--bg-surface); border-radius: 16px; border: 1px solid var(--border-color); margin-bottom: 30px;">
+            <div style="position: relative; display: inline-block; flex-shrink: 0;">
+                <img src="" id="youTabAvatar" alt="User Avatar Image" style="width: 75px; height: 75px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary);">
+                <!-- FIXED: Changed camera icon to plus icon -->
+                <label for="directAvatarUpload" class="avatar-upload-label">
+                    <i class="fas fa-plus" style="font-size: 14px;"></i>
+                </label>
+                <input type="file" id="directAvatarUpload" accept="image/*" style="display: none;">
+            </div>
+            <div class="you-info" style="flex: 1; overflow: hidden;">
+                <h2 onclick="editUserNamePrompt()" style="cursor: pointer; display: flex; align-items: center; gap: 8px; font-family: 'Orbitron', sans-serif; font-size: 20px; margin-bottom: 4px;" title="Click to edit name">
+                    <span id="youTabName" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Loading...</span> 
+                    <i class="fas fa-pen" style="font-size: 12px; color: var(--text-secondary);"></i>
+                </h2>
+                <p id="youTabEmail" style="font-size: 13px; color: var(--text-dim); font-family: monospace;"></p>
+                <p id="directAvatarStatus" style="font-size: 11px; color: var(--warning); margin-top: 4px; display: none; font-weight: bold;"></p>
+            </div>
         </div>
 
-    </div>
-
-</div>
-
-
-<!-- REDUCE MODAL -->
-
-<div class="modal" id="reduceModal">
-
-    <div class="modal-box">
-
-        <h3>Timer কমাবেন?</h3>
-
-        <p id="reduceMessage">
-            বর্তমান timer থেকে ১ দিন কমানো হবে।
-        </p>
-
-        <div class="modal-actions">
-
-            <button
-                class="secondary"
-                onclick="closeModals()">
-                Cancel
-            </button>
-
-            <button
-                class="primary"
-                onclick="confirmReduce()">
-                Confirm
-            </button>
-
+        <!-- GMAIL STYLE LOGGED OUT VIEW -->
+        <div class="google-login-card" id="loggedOutLoginView" onclick="window.location.href='login.html'">
+            <div class="g-logo-container">
+                <svg viewBox="0 0 24 24" width="32" height="32" xmlns="http://www.w3.org/2000/svg">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+            </div>
+            <div class="g-text-container">
+                <h2>LOGIN</h2>
+                <p>Sign in to access profile</p>
+            </div>
+            <i class="fas fa-chevron-right g-arrow"></i>
         </div>
 
+        <!-- REDEEM BOX (Visible for ALL logged-in users) -->
+        <div class="redeem-box" id="redeemBoxSection" style="max-width: 350px; margin: 0 auto 25px auto; padding: 15px; border-radius: 12px; display: none;">
+            <h4 id="lblClaimTitle" style="font-size: 15px; margin-bottom: 12px;"><i class="fas fa-gift" style="color: var(--primary);"></i> Redeem Code</h4>
+            <div style="display: flex; gap: 8px;">
+                <input type="text" id="redeemInputCode" class="play-input" placeholder="Enter Code" style="margin-bottom:0; text-transform:uppercase; font-family:monospace; font-size:14px; font-weight:bold; letter-spacing:1px; padding: 10px;">
+                <button class="play-btn" style="width: 90px; padding: 10px; font-size: 13px;" onclick="executeRedeemProtocol()" id="btnClaimCode">CLAIM</button>
+            </div>
+            <p id="redeemStatusMsg" style="font-size:11px; font-weight:600; margin-top:8px; color:var(--primary);"></p>
+        </div>
+
+        <div class="you-menu-list">
+            
+            <!-- ADMIN PANEL -->
+            <div class="you-menu-item" id="menuAdminPanelItem" style="display: none;" onclick="window.location.href='admin.html'">
+                <i class="fas fa-user-shield" style="color: var(--danger);"></i>
+                <span style="color: var(--danger); font-weight: 700;">Admin Panel</span>
+                <i class="fas fa-chevron-right arrow"></i>
+            </div>
+
+            <!-- PUBLISH APP -->
+            <div class="you-menu-item" id="menuPublishItem" onclick="openUploadModal()" style="display: none;">
+                <i class="fas fa-cloud-upload-alt" style="color: var(--primary);"></i>
+                <span id="lblUploadApp">Upload App</span>
+                <i class="fas fa-chevron-right arrow"></i>
+            </div>
+            
+            <!-- NEW: ACCOUNT SAVING -->
+            <div class="you-menu-item" onclick="window.open('https://sktausif771.github.io/Account_Saving/', '_blank')">
+                <i class="fas fa-save" style="color: #00e6b8;"></i>
+                <span>Account Saving</span>
+                <i class="fas fa-chevron-right arrow"></i>
+            </div>
+
+            <!-- LANGUAGE -->
+            <div class="you-menu-item" onclick="document.getElementById('languageSelectModal').classList.add('active')">
+                <i class="fas fa-language" style="color: #00ff88;"></i>
+                <span>Language: <strong id="currentLanguageLabel" style="color: var(--primary);">English</strong></span>
+                <i class="fas fa-chevron-right arrow"></i>
+            </div>
+
+            <!-- THEME -->
+            <div class="you-menu-item" id="themeToggleBtn">
+                <i class="fas fa-paint-brush" style="color: var(--warning);"></i>
+                <span>Theme: <strong id="currentThemeLabel" style="color: var(--primary);">Dark Mode</strong></span>
+                <i class="fas fa-exchange-alt arrow" style="font-size:14px;"></i>
+            </div>
+            
+            <!-- COIN BALANCE -->
+            <div class="you-menu-item" id="menuCoinItem" style="display: none;">
+                <i class="fas fa-wallet" style="color: #ffd700;"></i>
+                <span id="lblCoinBalance">Coin Balance</span>
+                <span style="margin-left:auto; margin-right:15px; font-weight:900; color:#ffd700; font-size:16px;" id="navCoinDisplay">0</span>
+            </div>
+            
+            <!-- SIGN OUT -->
+            <div class="you-menu-item" id="menuSignOutItem" style="color: var(--danger); display: none;" onclick="secureLogout()">
+                <i class="fas fa-sign-out-alt"></i>
+                <span id="lblSignOut">Logout</span>
+            </div>
+        </div>
+    </main>
+
+    <nav class="play-bottom-nav">
+        <div class="nav-item" onclick="switchTab('files', this)">
+            <i class="fas fa-folder-open"></i>
+            <span id="navFiles">Files</span>
+        </div>
+        <div class="nav-item active" id="defaultTabBtn" onclick="switchTab('mod_app', this)">
+            <i class="fas fa-robot"></i>
+            <span id="navModApp">Mods</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('search', this)">
+            <i class="fas fa-search"></i>
+            <span id="navSearch">Search</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('you', this)">
+            <i class="fas fa-user-circle"></i>
+            <span id="navYou">Profile</span>
+        </div>
+    </nav>
+
+    <div class="modal-overlay" id="languageSelectModal">
+        <div class="play-modal">
+            <div class="modal-header">
+                <h3><i class="fas fa-globe" style="color:var(--primary);"></i> Language</h3>
+                <i class="fas fa-times close-modal" onclick="document.getElementById('languageSelectModal').classList.remove('active')"></i>
+            </div>
+            <div class="modal-body">
+                <select id="sysLanguageSelector" class="play-input" onchange="changeSystemLanguage(this.value)">
+                    <option value="en">English (Default)</option>
+                    <option value="bn">বাংলা (Bengali)</option>
+                    <option value="es">Español (Spanish)</option>
+                    <option value="hi">हिन्दी (Hindi)</option>
+                    <option value="ar">العربية (Arabic)</option>
+                </select>
+            </div>
+        </div>
     </div>
 
-</div>
-
-
-<script>
-
-/* =========================================================
-   CONFIGURATION
-========================================================= */
-
-const MAX_DAYS = 40;
-const MAX_REDUCTIONS = 3;
-
-
-/* =========================================================
-   USER / STORAGE
-========================================================= */
-
-let currentUser = null;
-let userKey = null;
-let routine = null;
-let timerInterval = null;
-
-
-/* =========================================================
-   GOOGLE LOGIN
-========================================================= */
-
-function handleGoogleLogin(response){
-
-    /*
-       Google Identity Services থেকে credential পাওয়া যায়।
-
-       এখানে Gmail password বা Gmail cache নেওয়া হচ্ছে না।
-       Google নিজে authenticated account-এর identity token দেয়।
-    */
-
-    try{
-
-        const payload = parseJwt(response.credential);
-
-        currentUser = {
-
-            sub: payload.sub,
-
-            name: payload.name || "Google User",
-
-            email: payload.email || "",
-
-            picture: payload.picture || ""
-
-        };
-
-        userKey = "deen_routine_" + currentUser.sub;
-
-        showChecking();
-
-    }catch(error){
-
-        alert("Google Account verification failed.");
-
-        console.error(error);
-
-    }
-
-}
-
-
-/* =========================================================
-   JWT PARSER
-========================================================= */
-
-function parseJwt(token){
-
-    const base64Url = token.split('.')[1];
-
-    const base64 =
-        base64Url
-        .replace(/-/g,'+')
-        .replace(/_/g,'/');
-
-    const jsonPayload =
-        decodeURIComponent(
-            atob(base64)
-            .split('')
-            .map(function(c){
-
-                return '%' +
-                    ('00' + c.charCodeAt(0).toString(16))
-                    .slice(-2);
-
-            })
-            .join('')
-        );
-
-    return JSON.parse(jsonPayload);
-}
-
-
-/* =========================================================
-   ACCOUNT CHECKING
-========================================================= */
-
-function showChecking(){
-
-    document.getElementById("loginCard")
-        .style.display = "none";
-
-    document.getElementById("checking")
-        .style.display = "block";
-
-    let seconds = 3;
-
-    document.getElementById("checkingTimer")
-        .textContent = seconds + "s";
-
-    const checkInterval = setInterval(()=>{
-
-        seconds--;
-
-        document.getElementById("checkingTimer")
-            .textContent =
-            seconds > 0 ? seconds + "s" : "Success ✓";
-
-        if(seconds <= 0){
-
-            clearInterval(checkInterval);
-
-            setTimeout(()=>{
-
-                loadAccount();
-
-            },500);
-
-        }
-
-    },1000);
-
-}
-
-
-/* =========================================================
-   LOAD ACCOUNT DATA
-========================================================= */
-
-function loadAccount(){
-
-    document.getElementById("checking")
-        .style.display = "none";
-
-    document.getElementById("app")
-        .style.display = "block";
-
-
-    document.getElementById("userName")
-        .textContent = currentUser.name;
-
-    document.getElementById("userEmail")
-        .textContent = currentUser.email;
-
-    document.getElementById("avatar")
-        .textContent =
-        currentUser.name.charAt(0).toUpperCase();
-
-
-    /*
-       Account-specific storage
-
-       একই browser/origin-এর মধ্যে প্রতিটি Google account-এর
-       আলাদা storage key থাকবে।
-    */
-
-    const saved =
-        localStorage.getItem(userKey);
-
-
-    if(saved){
-
-        try{
-
-            routine = JSON.parse(saved);
-
-        }catch(e){
-
-            routine = createNewRoutine();
-
-        }
-
-    }else{
-
-        routine = createNewRoutine();
-
-        saveRoutine();
-
-    }
-
-
-    updateUI();
-
-    startTimer();
-
-}
-
-
-/* =========================================================
-   NEW ROUTINE
-========================================================= */
-
-function createNewRoutine(){
-
-    const now = Date.now();
-
-    return {
-
-        targetDays: MAX_DAYS,
-
-        startTime: now,
-
-        reductionCount: 0,
-
-        createdAt: now
-
-    };
-
-}
-
-
-/* =========================================================
-   SAVE
-========================================================= */
-
-function saveRoutine(){
-
-    if(!userKey || !routine) return;
-
-    localStorage.setItem(
-
-        userKey,
-
-        JSON.stringify(routine)
-
-    );
-
-}
-
-
-/* =========================================================
-   TIMER
-========================================================= */
-
-function startTimer(){
-
-    if(timerInterval){
-
-        clearInterval(timerInterval);
-
-    }
-
-    updateUI();
-
-    timerInterval = setInterval(()=>{
-
-        updateUI();
-
-    },1000);
-
-}
-
-
-/* =========================================================
-   UPDATE UI
-========================================================= */
-
-function updateUI(){
-
-    if(!routine) return;
-
-    const now = Date.now();
-
-    const duration =
-        routine.targetDays *
-        24 * 60 * 60 * 1000;
-
-    const elapsed =
-        Math.max(0, now - routine.startTime);
-
-    const remaining =
-        Math.max(0, duration - elapsed);
-
-
-    const totalSeconds =
-        Math.floor(remaining / 1000);
-
-    const days =
-        Math.floor(totalSeconds / 86400);
-
-    const hours =
-        Math.floor(
-            (totalSeconds % 86400) / 3600
-        );
-
-    const minutes =
-        Math.floor(
-            (totalSeconds % 3600) / 60
-        );
-
-
-    document.getElementById("days")
-        .textContent = days;
-
-    document.getElementById("hours")
-        .textContent = String(hours).padStart(2,"0");
-
-    document.getElementById("minutes")
-        .textContent = String(minutes).padStart(2,"0");
-
-
-    const elapsedDays =
-        Math.min(
-            routine.targetDays,
-            Math.floor(elapsed / 86400000)
-        );
-
-
-    const percentage =
-        Math.min(
-            100,
-            (elapsed / duration) * 100
-        );
-
-
-    document.getElementById("progressBar")
-        .style.width = percentage + "%";
-
-
-    document.getElementById("elapsedText")
-        .textContent =
-        elapsedDays + " দিন হয়েছে";
-
-
-    document.getElementById("remainingText")
-        .textContent =
-        days + " দিন বাকি";
-
-
-    document.getElementById("targetInfo")
-        .textContent =
-        routine.targetDays + " দিন";
-
-
-    document.getElementById("reductionInfo")
-        .textContent =
-        routine.reductionCount +
-        " / " +
-        MAX_REDUCTIONS;
-
-
-    document.getElementById("reduceCount")
-        .textContent =
-        routine.reductionCount +
-        " / " +
-        MAX_REDUCTIONS +
-        " ব্যবহার হয়েছে";
-
-
-    document.getElementById("startInfo")
-        .textContent =
-        formatDate(routine.startTime);
-
-
-    document.getElementById("endInfo")
-        .textContent =
-        formatDate(
-            routine.startTime + duration
-        );
-
-
-    if(remaining <= 0){
-
-        document.getElementById("remainingText")
-            .textContent = "সময় শেষ";
-
-    }
-
-}
-
-
-/* =========================================================
-   DATE FORMAT
-========================================================= */
-
-function formatDate(timestamp){
-
-    return new Date(timestamp)
-        .toLocaleDateString(
-            "bn-BD",
-            {
-                day:"numeric",
-                month:"short",
-                year:"numeric"
+    <!-- MY UPLOADS MODAL -->
+    <div class="modal-overlay" id="myUploadsModal">
+        <div class="play-modal" style="max-width: 600px; width: 95%;">
+            <div class="modal-header">
+                <h3><i class="fas fa-cloud-upload-alt" style="color:var(--primary);"></i> My Uploads</h3>
+                <i class="fas fa-times close-modal" onclick="document.getElementById('myUploadsModal').classList.remove('active')"></i>
+            </div>
+            <div class="modal-body" style="padding: 20px; max-height: 60vh; overflow-y: auto;">
+                <div id="myUploadsContainer">
+                    <div style="text-align:center; padding: 30px; color:var(--text-secondary);">
+                        <i class="fas fa-spinner fa-spin" style="font-size:24px; color:var(--primary);"></i>
+                        <p style="margin-top:10px;">Loading uploads...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- UPDATE APPLICATION MODAL -->
+    <div class="modal-overlay" id="userAppEditModal">
+        <div class="play-modal" style="max-width: 550px;">
+            <div class="modal-header">
+                <h3><i class="fas fa-edit" style="color:var(--warning);"></i> Edit App</h3>
+                <i class="fas fa-times close-modal" onclick="closeUserAppEditModal()"></i>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="euAppId">
+                <input type="hidden" id="euAppStatus">
+                
+                <label class="modal-label">App Title</label>
+                <input type="text" id="euName" class="play-input">
+                
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+                    <div>
+                        <label class="modal-label">Version</label>
+                        <input type="text" id="euVer" class="play-input">
+                    </div>
+                    <div>
+                        <label class="modal-label">Size</label>
+                        <input type="text" id="euSize" class="play-input">
+                    </div>
+                </div>
+
+                <label class="modal-label">Download Link</label>
+                <input type="text" id="euMainLink" class="play-input">
+
+                <label class="modal-label">Description</label>
+                <textarea id="euDescription" class="play-input" style="min-height:80px; resize:vertical;"></textarea>
+                
+                <button class="play-btn" style="background:var(--warning); color:#000;" onclick="submitUserAppUpdate()">SAVE</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    
+    <script src="firebase-config.js"></script>
+    <script src="main.js"></script>
+    <script src="store-logic.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if(typeof firebase !== 'undefined') {
+                firebase.auth().onAuthStateChanged((user) => {
+                    const loggedInView = document.getElementById('loggedInProfileView');
+                    const loggedOutView = document.getElementById('loggedOutLoginView');
+                    if (user) {
+                        if(loggedInView) loggedInView.style.display = 'flex';
+                        if(loggedOutView) loggedOutView.style.display = 'none';
+                    } else {
+                        if(loggedInView) loggedInView.style.display = 'none';
+                        if(loggedOutView) loggedOutView.style.display = 'flex';
+                    }
+                });
             }
-        );
-
-}
-
-
-/* =========================================================
-   RESET
-========================================================= */
-
-function openResetModal(){
-
-    document.getElementById("resetModal")
-        .style.display = "flex";
-
-}
-
-
-function resetTimer(){
-
-    routine.startTime = Date.now();
-
-    /*
-       Reset করলে targetDays এবং reductionCount
-       আগের অবস্থায় থাকবে।
-    */
-
-    saveRoutine();
-
-    updateUI();
-
-    closeModals();
-
-}
-
-
-/* =========================================================
-   REDUCTION
-========================================================= */
-
-function reduceTimer(){
-
-    if(routine.reductionCount >= MAX_REDUCTIONS){
-
-        alert(
-            "আপনি সর্বোচ্চ ৩ বার timer কমাতে পারবেন।"
-        );
-
-        return;
-
-    }
-
-
-    if(routine.targetDays <= 1){
-
-        alert(
-            "Timer আর কমানো সম্ভব নয়।"
-        );
-
-        return;
-
-    }
-
-
-    document.getElementById("reduceMessage")
-        .textContent =
-        "বর্তমান " +
-        routine.targetDays +
-        " দিন থেকে ১ দিন কমানো হবে।";
-
-
-    document.getElementById("reduceModal")
-        .style.display = "flex";
-
-}
-
-
-function confirmReduce(){
-
-    if(
-        routine.reductionCount >=
-        MAX_REDUCTIONS
-    ){
-
-        closeModals();
-
-        return;
-
-    }
-
-
-    if(routine.targetDays <= 1){
-
-        closeModals();
-
-        return;
-
-    }
-
-
-    /*
-       ১ দিন কমানো হচ্ছে।
-
-       গুরুত্বপূর্ণ:
-       Target কমলেও ইতিমধ্যে যেসব দিন পার হয়েছে
-       সেগুলো নতুন target-এর বাইরে চলে গেলে countdown
-       automatically completed হিসেবে দেখাবে।
-    */
-
-    routine.targetDays--;
-
-    routine.reductionCount++;
-
-    saveRoutine();
-
-    updateUI();
-
-    closeModals();
-
-}
-
-
-/* =========================================================
-   MODAL
-========================================================= */
-
-function openReduceModal(){
-
-    reduceTimer();
-
-}
-
-
-function closeModals(){
-
-    document.getElementById("resetModal")
-        .style.display = "none";
-
-    document.getElementById("reduceModal")
-        .style.display = "none";
-
-}
-
-
-/* =========================================================
-   DARK MODE
-========================================================= */
-
-document.getElementById("themeBtn")
-    .addEventListener("click",()=>{
-
-        document.body.classList.toggle("dark");
-
-        const dark =
-            document.body.classList.contains("dark");
-
-        localStorage.setItem(
-            "deen_theme",
-            dark ? "dark" : "light"
-        );
-
-        document.getElementById("themeBtn")
-            .textContent =
-            dark ? "☀" : "☾";
-
-    });
-
-
-(function(){
-
-    const theme =
-        localStorage.getItem("deen_theme");
-
-    if(theme === "dark"){
-
-        document.body.classList.add("dark");
-
-        document.getElementById("themeBtn")
-            .textContent = "☀";
-
-    }
-
-})();
-
-
-/* =========================================================
-   LOGOUT
-========================================================= */
-
-function logout(){
-
-    if(timerInterval){
-
-        clearInterval(timerInterval);
-
-    }
-
-    currentUser = null;
-
-    userKey = null;
-
-    routine = null;
-
-    document.getElementById("app")
-        .style.display = "none";
-
-    document.getElementById("checking")
-        .style.display = "none";
-
-    document.getElementById("loginCard")
-        .style.display = "block";
-
-}
-
-
-/* =========================================================
-   CLOSE MODAL ON BACKGROUND CLICK
-========================================================= */
-
-document.querySelectorAll(".modal")
-.forEach(modal=>{
-
-    modal.addEventListener("click",(e)=>{
-
-        if(e.target === modal){
-
-            closeModals();
-
+        });
+
+        function switchTab(tabName, element) {
+            document.querySelectorAll('.play-bottom-nav .nav-item').forEach(el => el.classList.remove('active'));
+            if(element) element.classList.add('active');
+
+            const feedSection = document.getElementById('mainStoreFeed');
+            const searchSection = document.getElementById('searchTabContent');
+            const notificationSection = document.getElementById('notificationTabContent');
+            const youSection = document.getElementById('youTabContent');
+
+            feedSection.style.display = 'none';
+            searchSection.style.display = 'none';
+            notificationSection.style.display = 'none';
+            youSection.style.display = 'none';
+
+            if(tabName === 'files') {
+                feedSection.style.display = 'block';
+                if(typeof window.loadStoreFeed === 'function') window.loadStoreFeed('all', 'files');
+            } else if (tabName === 'mod_app') {
+                feedSection.style.display = 'block';
+                if(typeof window.loadStoreFeed === 'function') window.loadStoreFeed('all', 'mod_app');
+            } else if (tabName === 'search') {
+                searchSection.style.display = 'block';
+            } else if (tabName === 'you') {
+                youSection.style.display = 'block';
+            }
         }
 
-    });
+        function openNotificationCenter() {
+            switchTab('none', null);
+            document.querySelectorAll('.play-bottom-nav .nav-item').forEach(el => el.classList.remove('active'));
+            document.getElementById('notificationTabContent').style.display = 'block';
+            const badge = document.getElementById('notiAlert');
+            if(badge) badge.style.display = 'none';
+        }
 
-});
+        function openMyUploadsModal() {
+            document.getElementById('myUploadsModal').classList.add('active');
+            if(typeof window.fetchMyUploadedApps === 'function') window.fetchMyUploadedApps();
+        }
 
-</script>
-
+        function closeUserAppEditModal() {
+            document.getElementById('userAppEditModal').classList.remove('active');
+        }
+    </script>
 </body>
 </html>
